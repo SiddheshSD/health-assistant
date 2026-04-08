@@ -59,7 +59,7 @@ DISEASE_SYMPTOMS = {
     "GERD":                     ["stomach_pain","acidity","ulcers_on_tongue","vomiting","cough","chest_pain","indigestion"],
     "Chronic cholestasis":      ["itching","vomiting","yellowish_skin","nausea","loss_of_appetite","abdominal_pain","yellowing_of_eyes","fatigue"],
     "Drug Reaction":            ["itching","skin_rash","stomach_pain","burning_micturition","spotting_urination"],
-    "Peptic ulcer diseae":      ["vomiting","indigestion","loss_of_appetite","abdominal_pain","passage_of_gases","internal_itching","fatigue"],
+    "Peptic Ulcer Disease":      ["vomiting","indigestion","loss_of_appetite","abdominal_pain","passage_of_gases","internal_itching","fatigue"],
     "AIDS":                     ["muscle_wasting","patches_in_throat","high_fever","extra_marital_contacts","fatigue","weight_loss","receiving_unsterile_injections"],
     "Diabetes":                 ["fatigue","weight_loss","restlessness","lethargy","irregular_sugar_level","polyuria","increased_appetite","excessive_hunger","family_history"],
     "Gastroenteritis":          ["vomiting","sunken_eyes","dehydration","diarrhoea","nausea"],

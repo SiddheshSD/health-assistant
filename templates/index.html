@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Health Assistant — Symptom Checker</title>
   <meta name="description"
-    content="AI-powered health assistant that analyzes your symptoms, predicts possible conditions, and provides personalized health suggestions using advanced machine learning and LLaMA AI." />
+    content="AI-powered health assistant with personalized profile, ML disease prediction, and LLaMA AI suggestions." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -15,24 +15,21 @@
 </head>
 
 <body>
-
-  <!-- Background Orbs -->
   <div class="bg-orbs" aria-hidden="true">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
   </div>
 
-  <!-- Header -->
   <header class="header">
     <div class="header-inner">
       <div class="logo">
         <div class="logo-icon" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 2C7.373 2 2 7.373 2 14s5.373 12 12 12 12-5.373 12-12S20.627 2 14 2z" fill="url(#logoGrad)" />
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M14 2C7.373 2 2 7.373 2 14s5.373 12 12 12 12-5.373 12-12S20.627 2 14 2z" fill="url(#lg)" />
             <path d="M14 8v12M8 14h12" stroke="white" stroke-width="2.5" stroke-linecap="round" />
             <defs>
-              <linearGradient id="logoGrad" x1="2" y1="2" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+              <linearGradient id="lg" x1="2" y1="2" x2="26" y2="26" gradientUnits="userSpaceOnUse">
                 <stop offset="0%" stop-color="#6366f1" />
                 <stop offset="100%" stop-color="#06b6d4" />
               </linearGradient>
@@ -48,70 +45,295 @@
     </div>
   </header>
 
-  <!-- Main -->
   <main class="main" role="main">
-
-    <!-- Hero -->
     <section class="hero" aria-labelledby="hero-title">
-      <h1 id="hero-title" class="hero-title">
-        AI-Powered <span class="gradient-text">Symptom Analysis</span>
-      </h1>
-      <p class="hero-subtitle">
-        Describe your symptoms and get instant insights powered by machine learning and LLaMA 3.3 AI. Always consult a
-        doctor for medical advice.
-      </p>
-      <div class="hero-badges" aria-label="Technology stack">
-        <span class="tech-badge">🤖 <span id="llm-badge">AI Model</span></span>
+      <h1 id="hero-title" class="hero-title">AI-Powered <span class="gradient-text">Health Analysis</span></h1>
+      <p class="hero-subtitle">Build your health profile, describe your symptoms, and get personalized AI-driven
+        insights powered by ML and LLaMA 3.3 AI.</p>
+      <div class="hero-badges">
+        <span class="tech-badge">🤖 LLaMA 3.3 70B (Groq)</span>
         <span class="tech-badge">🧬 Random Forest ML</span>
         <span class="tech-badge">41 Conditions</span>
         <span class="tech-badge">131 Symptoms</span>
       </div>
     </section>
 
-    <!-- Input Card -->
-    <section class="card input-card" aria-labelledby="form-title">
-      <h2 id="form-title" class="card-title">
-        <span class="card-title-icon" aria-hidden="true">🔍</span>
-        Enter Your Symptoms
-      </h2>
+    <!-- ── WIZARD ─────────────────────────────────────────────── -->
+    <div id="wizard-wrapper" class="wizard-wrapper">
 
-      <form id="health-form" novalidate aria-label="Symptom analysis form">
+      <!-- Step Progress Bar -->
+      <div class="wizard-progress" role="progressbar" aria-label="Profile setup progress">
+        <div class="wizard-steps-nav">
+          <div class="wstep active" id="nav-1" data-step="1"><span class="wstep-num">1</span><span
+              class="wstep-label">Account</span></div>
+          <div class="wstep-line"></div>
+          <div class="wstep" id="nav-2" data-step="2"><span class="wstep-num">2</span><span
+              class="wstep-label">Profile</span></div>
+          <div class="wstep-line"></div>
+          <div class="wstep" id="nav-3" data-step="3"><span class="wstep-num">3</span><span
+              class="wstep-label">Body</span></div>
+          <div class="wstep-line"></div>
+          <div class="wstep" id="nav-4" data-step="4"><span class="wstep-num">4</span><span
+              class="wstep-label">Lifestyle</span></div>
+          <div class="wstep-line"></div>
+          <div class="wstep" id="nav-5" data-step="5"><span class="wstep-num">5</span><span
+              class="wstep-label">Medical</span></div>
+        </div>
+      </div>
 
-        <!-- Symptom Search -->
+      <!-- Step 1: Account -->
+      <div class="card wizard-card" id="step-panel-1">
+        <h2 class="card-title"><span class="card-title-icon">👤</span>Create Your Account</h2>
+        <p class="wizard-subtitle">Let's start with your name so we can personalise your health experience.</p>
         <div class="form-group">
-          <label class="form-label" for="symptom-search">
-            Symptoms <span class="required" aria-label="required">*</span>
-          </label>
+          <label class="form-label" for="full-name">Full Name <span class="required">*</span></label>
+          <input type="text" id="full-name" class="input-field" placeholder="e.g. Amey Sawant" autocomplete="name" />
+          <span class="field-hint">Used only to personalise your results</span>
+        </div>
+        <div class="wizard-nav-btns">
+          <div></div>
+          <button class="btn-primary wizard-next-btn" data-next="2" style="width:auto;padding:13px 36px;">Next
+            →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Basic Health Profile -->
+      <div class="card wizard-card" id="step-panel-2" hidden>
+        <h2 class="card-title"><span class="card-title-icon">📋</span>Basic Health Profile</h2>
+        <p class="wizard-subtitle">This helps the ML model and AI give more accurate, personalised predictions.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="p-age">Age <span class="required">*</span></label>
+            <input type="number" id="p-age" class="input-field" placeholder="e.g. 28" min="1" max="120" />
+            <span class="field-hint">💡 Used for better prediction accuracy</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="p-gender">Gender <span class="required">*</span></label>
+            <div class="select-wrapper">
+              <select id="p-gender" class="input-field select-field">
+                <option value="">Select gender</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+                <option>Prefer not to say</option>
+              </select>
+              <svg class="select-arrow" viewBox="0 0 12 8" fill="none">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav-btns">
+          <button class="btn-secondary" data-back="1">← Back</button>
+          <button class="btn-primary wizard-next-btn" data-next="3" style="width:auto;padding:13px 36px;">Next
+            →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Body Metrics -->
+      <div class="card wizard-card" id="step-panel-3" hidden>
+        <h2 class="card-title"><span class="card-title-icon">⚖️</span>Body Metrics</h2>
+        <p class="wizard-subtitle">Height and weight help calculate your BMI, an important clinical indicator.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="p-height">Height (cm) <span class="required">*</span></label>
+            <input type="number" id="p-height" class="input-field" placeholder="e.g. 170" min="50" max="250"
+              oninput="calcBMI()" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="p-weight">Weight (kg) <span class="required">*</span></label>
+            <input type="number" id="p-weight" class="input-field" placeholder="e.g. 65" min="10" max="300"
+              oninput="calcBMI()" />
+          </div>
+        </div>
+        <!-- BMI Display -->
+        <div id="bmi-display" class="bmi-display" hidden>
+          <div class="bmi-value-row">
+            <span class="bmi-label">Your BMI</span>
+            <span id="bmi-value" class="bmi-value">—</span>
+            <span id="bmi-category" class="bmi-badge">—</span>
+          </div>
+          <div class="bmi-bar-track">
+            <div id="bmi-bar-fill" class="bmi-bar-fill"></div>
+          </div>
+          <div class="bmi-scale-labels">
+            <span>Underweight</span><span>Normal</span><span>Overweight</span><span>Obese</span>
+          </div>
+        </div>
+        <div class="wizard-nav-btns">
+          <button class="btn-secondary" data-back="2">← Back</button>
+          <button class="btn-primary wizard-next-btn" data-next="4" style="width:auto;padding:13px 36px;">Next
+            →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Lifestyle -->
+      <div class="card wizard-card" id="step-panel-4" hidden>
+        <h2 class="card-title"><span class="card-title-icon">🌿</span>Lifestyle Habits</h2>
+        <p class="wizard-subtitle">Your daily habits significantly impact health risk and AI suggestions.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="p-smoking">Smoking Habit</label>
+            <div class="select-wrapper">
+              <select id="p-smoking" class="input-field select-field">
+                <option>Non-smoker</option>
+                <option>Occasional</option>
+                <option>Regular</option>
+              </select>
+              <svg class="select-arrow" viewBox="0 0 12 8" fill="none">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="p-alcohol">Alcohol Consumption</label>
+            <div class="select-wrapper">
+              <select id="p-alcohol" class="input-field select-field">
+                <option>No</option>
+                <option>Occasionally</option>
+                <option>Frequently</option>
+              </select>
+              <svg class="select-arrow" viewBox="0 0 12 8" fill="none">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="p-activity">Physical Activity</label>
+            <div class="select-wrapper">
+              <select id="p-activity" class="input-field select-field">
+                <option>Sedentary (no exercise)</option>
+                <option>Moderate (1–3 days/week)</option>
+                <option>Active (4+ days/week)</option>
+              </select>
+              <svg class="select-arrow" viewBox="0 0 12 8" fill="none">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="p-sleep">Sleep Duration</label>
+            <div class="select-wrapper">
+              <select id="p-sleep" class="input-field select-field">
+                <option>Less than 5 hours</option>
+                <option>5–7 hours</option>
+                <option selected>7–9 hours</option>
+                <option>More than 9 hours</option>
+              </select>
+              <svg class="select-arrow" viewBox="0 0 12 8" fill="none">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="p-diet">Diet Type</label>
+            <div class="select-wrapper">
+              <select id="p-diet" class="input-field select-field">
+                <option>Vegetarian</option>
+                <option>Non-Vegetarian</option>
+                <option>Vegan</option>
+              </select>
+              <svg class="select-arrow" viewBox="0 0 12 8" fill="none">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Stress Level</label>
+            <div class="stress-selector">
+              <label class="stress-opt stress-low"><input type="radio" name="stress" value="Low" checked /><span>😌
+                  Low</span></label>
+              <label class="stress-opt stress-med"><input type="radio" name="stress" value="Medium" /><span>😤
+                  Medium</span></label>
+              <label class="stress-opt stress-high"><input type="radio" name="stress" value="High" /><span>😰
+                  High</span></label>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-nav-btns">
+          <button class="btn-secondary" data-back="3">← Back</button>
+          <button class="btn-primary wizard-next-btn" data-next="5" style="width:auto;padding:13px 36px;">Next
+            →</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Medical Background -->
+      <div class="card wizard-card" id="step-panel-5" hidden>
+        <h2 class="card-title"><span class="card-title-icon">🏥</span>Medical Background</h2>
+        <p class="wizard-subtitle">Existing conditions and allergies help the AI give safer, more targeted advice.</p>
+        <div class="form-group">
+          <label class="form-label">Existing Conditions (select all that apply)</label>
+          <div class="disease-chips" id="disease-chips">
+            <label class="chip"><input type="checkbox" value="None" /><span>None</span></label>
+            <label class="chip"><input type="checkbox" value="Diabetes" /><span>Diabetes</span></label>
+            <label class="chip"><input type="checkbox" value="Hypertension" /><span>Hypertension</span></label>
+            <label class="chip"><input type="checkbox" value="Heart Disease" /><span>Heart Disease</span></label>
+            <label class="chip"><input type="checkbox" value="Asthma" /><span>Asthma</span></label>
+            <label class="chip"><input type="checkbox" value="Thyroid Disorder" /><span>Thyroid Disorder</span></label>
+            <label class="chip"><input type="checkbox" value="Kidney Disease" /><span>Kidney Disease</span></label>
+            <label class="chip"><input type="checkbox" value="Liver Disease" /><span>Liver Disease</span></label>
+            <label class="chip"><input type="checkbox" value="Arthritis" /><span>Arthritis</span></label>
+            <label class="chip"><input type="checkbox" value="PCOD/PCOS" /><span>PCOD/PCOS</span></label>
+            <label class="chip"><input type="checkbox" value="Anemia" /><span>Anemia</span></label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="p-allergies">Allergies</label>
+          <input type="text" id="p-allergies" class="input-field"
+            placeholder="e.g. Penicillin, dust, peanuts (or leave blank)" />
+          <span class="field-hint">Helps the AI flag drug or environmental triggers</span>
+        </div>
+        <div class="wizard-nav-btns">
+          <button class="btn-secondary" data-back="4">← Back</button>
+          <button class="btn-primary" id="start-symptom-btn" style="width:auto;padding:13px 36px;">Start Symptom Check
+            ⚡</button>
+        </div>
+      </div>
+    </div>
+    <!-- ── END WIZARD ────────────────────────────────────────── -->
+
+    <!-- Profile Summary Bar (shown after wizard) -->
+    <div id="profile-bar" class="profile-bar" hidden>
+      <div class="profile-bar-inner">
+        <div class="profile-avatar" id="profile-avatar">👤</div>
+        <div class="profile-info">
+          <span id="profile-name-display" class="profile-name">—</span>
+          <span id="profile-meta-display" class="profile-meta">—</span>
+        </div>
+        <button class="profile-edit-btn" id="edit-profile-btn" title="Edit profile">✏️ Edit</button>
+      </div>
+    </div>
+
+    <!-- Input Card (hidden until wizard done) -->
+    <section class="card input-card" id="symptom-section" aria-labelledby="form-title" hidden>
+      <h2 id="form-title" class="card-title"><span class="card-title-icon">🔍</span>Enter Your Symptoms</h2>
+      <form id="health-form" novalidate aria-label="Symptom analysis form">
+        <div class="form-group">
+          <label class="form-label" for="symptom-search">Symptoms <span class="required">*</span></label>
           <div class="search-wrapper">
             <svg class="search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5" />
               <path d="M15 15l-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
             </svg>
             <input type="text" id="symptom-search" class="input-field search-input"
-              placeholder="Search known symptoms or type any symptom + press Enter" autocomplete="off"
-              aria-autocomplete="list" aria-controls="suggestions-list" aria-expanded="false" />
-            <button type="button" id="add-custom-btn" class="add-custom-btn" title="Add typed symptom">
-              + Add
-            </button>
+              placeholder="Search known symptoms or type any + press Enter" autocomplete="off" aria-autocomplete="list"
+              aria-controls="suggestions-list" aria-expanded="false" />
+            <button type="button" id="add-custom-btn" class="add-custom-btn" title="Add typed symptom">+ Add</button>
           </div>
-          <p class="search-hint">Press <kbd>Enter</kbd> or click <strong>+ Add</strong> to add any symptom — even if not
-            in the list.</p>
-
-          <!-- Autocomplete Dropdown -->
-          <ul id="suggestions-list" class="suggestions-dropdown" role="listbox" aria-label="Symptom suggestions" hidden>
-          </ul>
-
-          <!-- Selected symptoms tags -->
-          <div id="selected-symptoms" class="selected-tags" role="list" aria-label="Selected symptoms"
-            aria-live="polite">
-            <span class="tags-placeholder" id="tags-placeholder">No symptoms selected yet. Use search above or type any
-              symptom and press Enter.</span>
+          <p class="search-hint">Press <kbd>Enter</kbd> or click <strong>+ Add</strong> to add any symptom — even
+            free-typed ones.</p>
+          <ul id="suggestions-list" class="suggestions-dropdown" role="listbox" hidden></ul>
+          <div id="selected-symptoms" class="selected-tags" role="list" aria-live="polite">
+            <span class="tags-placeholder" id="tags-placeholder">No symptoms selected yet. Search above or type and
+              press Enter.</span>
           </div>
-
-          <!-- Quick-add common symptoms -->
-          <div class="quick-symptoms" aria-label="Quick add common symptoms">
+          <div class="quick-symptoms">
             <span class="quick-label">Quick add:</span>
-            <div class="quick-buttons" id="quick-buttons">
+            <div class="quick-buttons">
               <button type="button" class="quick-btn" data-symptom="headache">Headache</button>
               <button type="button" class="quick-btn" data-symptom="high_fever">Fever</button>
               <button type="button" class="quick-btn" data-symptom="nausea">Nausea</button>
@@ -125,86 +347,45 @@
             </div>
           </div>
         </div>
-
-        <!-- Age & Gender row -->
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label" for="age-input">Age (optional)</label>
-            <input type="number" id="age-input" class="input-field" placeholder="e.g. 28" min="1" max="120"
-              aria-describedby="age-hint" />
-            <span id="age-hint" class="field-hint">Enter your age in years</span>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="gender-select">Gender (optional)</label>
-            <div class="select-wrapper">
-              <select id="gender-select" class="input-field select-field" aria-describedby="gender-hint">
-                <option value="">Prefer not to say</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-              <svg class="select-arrow" viewBox="0 0 12 8" fill="none" aria-hidden="true">
-                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-              </svg>
-            </div>
-            <span id="gender-hint" class="field-hint">Helps personalize suggestions</span>
-          </div>
-        </div>
-
-        <!-- Submit -->
-        <button type="submit" id="analyze-btn" class="btn-primary" aria-describedby="submit-hint">
+        <button type="submit" id="analyze-btn" class="btn-primary">
           <span class="btn-text">Analyze My Symptoms</span>
-          <span class="btn-icon" aria-hidden="true">⚡</span>
+          <span class="btn-icon">⚡</span>
         </button>
-        <p id="submit-hint" class="submit-hint">
-          Results are AI-generated and not a medical diagnosis
-        </p>
-
-        <!-- Error message -->
+        <p class="submit-hint">Results are AI-generated and not a medical diagnosis</p>
         <div id="error-msg" class="error-banner" role="alert" aria-live="assertive" hidden>
-          <span class="error-icon" aria-hidden="true">⚠️</span>
-          <span id="error-text"></span>
+          <span>⚠️</span><span id="error-text"></span>
         </div>
-
       </form>
     </section>
 
-    <!-- Loading State -->
-    <div id="loading-state" class="loading-panel" role="status" aria-label="Analyzing symptoms" hidden>
+    <!-- Loading -->
+    <div id="loading-state" class="loading-panel" role="status" hidden>
       <div class="loading-inner">
-        <div class="pulse-ring" aria-hidden="true">
+        <div class="pulse-ring">
           <div class="pulse-dot"></div>
         </div>
         <h3 class="loading-title">Analyzing your symptoms…</h3>
         <div class="loading-steps" aria-live="polite">
-          <div class="step" id="step-1">
-            <span class="step-icon step-active" aria-hidden="true">🧬</span>
-            <span>Running ML prediction model</span>
+          <div class="step" id="step-1"><span class="step-icon step-active">🧬</span><span>Running ML prediction
+              model</span></div>
+          <div class="step" id="step-2"><span class="step-icon">🤖</span><span>Consulting AI with your profile</span>
           </div>
-          <div class="step" id="step-2">
-            <span class="step-icon" aria-hidden="true">🤖</span>
-            <span>Consulting LLaMA 3.3 AI</span>
-          </div>
-          <div class="step" id="step-3">
-            <span class="step-icon" aria-hidden="true">📋</span>
-            <span>Generating health suggestions</span>
-          </div>
+          <div class="step" id="step-3"><span class="step-icon">📋</span><span>Generating personalised
+              suggestions</span></div>
         </div>
       </div>
     </div>
 
-    <!-- Results Section -->
+    <!-- Results -->
     <section id="results-section" class="results-wrapper" aria-label="Analysis results" hidden>
-
-      <!-- Prediction Card -->
       <div class="card result-card prediction-card">
         <div class="prediction-header">
           <div>
             <h2 class="result-section-title">🔬 Condition Detected</h2>
             <div id="disease-name" class="disease-name" role="heading" aria-level="3"></div>
           </div>
-          <div class="confidence-circle-wrapper" aria-label="Confidence score">
-            <svg class="confidence-circle" viewBox="0 0 80 80" aria-hidden="true">
+          <div class="confidence-circle-wrapper">
+            <svg class="confidence-circle" viewBox="0 0 80 80">
               <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6" />
               <circle id="conf-arc" cx="40" cy="40" r="34" fill="none" stroke="url(#confGrad)" stroke-width="6"
                 stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6"
@@ -222,498 +403,387 @@
             </div>
           </div>
         </div>
-
-        <!-- Confidence Bar -->
         <div class="confidence-bar-section">
           <div class="confidence-bar-header">
-            <span>Model Confidence</span>
-            <span id="conf-label" class="conf-label-text"></span>
+            <span>Model Confidence</span><span id="conf-label" class="conf-label-text"></span>
           </div>
-          <div class="confidence-bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
-            aria-label="Confidence level">
+          <div class="confidence-bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">
             <div id="confidence-bar" class="confidence-bar-fill"></div>
           </div>
         </div>
-
-        <!-- Matched Symptoms -->
         <div id="matched-symptoms-section" class="matched-section" hidden>
           <p class="matched-label"><span class="label-dot dot-green"></span>Exactly Matched (from dataset):</p>
-          <div id="matched-tags" class="matched-tags" role="list" aria-label="Matched symptoms"></div>
+          <div id="matched-tags" class="matched-tags" role="list"></div>
         </div>
-
-        <!-- Auto-Mapped Symptoms -->
         <div id="mapped-symptoms-section" class="mapped-section" hidden>
           <p class="matched-label"><span class="label-dot dot-blue"></span>Auto-Mapped &amp; Used in Prediction:</p>
-          <div id="mapped-tags" class="mapped-tags" role="list" aria-label="Auto-mapped symptoms"></div>
-          <p class="mapped-hint">These free-typed symptoms were intelligently mapped to the nearest known symptom and
-            <strong>included in the ML prediction</strong>.</p>
+          <div id="mapped-tags" class="mapped-tags" role="list"></div>
+          <p class="mapped-hint">Free-typed symptoms intelligently mapped to nearest known symptom and <strong>included
+              in ML prediction</strong>.</p>
         </div>
-
-        <!-- Unknown Symptoms Warning -->
         <div id="unknown-symptoms-section" class="unknown-section" role="alert" hidden>
           <div class="unknown-header">
-            <span class="unknown-icon" aria-hidden="true">⚠️</span>
+            <span>⚠️</span>
             <p class="matched-label"><span class="label-dot dot-orange"></span>Could Not Map (LLM context only):</p>
           </div>
-          <div id="unknown-tags" class="unknown-tags" role="list" aria-label="Unknown symptoms"></div>
-          <p class="unknown-hint">No close match found in dataset. The AI still considers these symptoms in its
-            suggestions.</p>
+          <div id="unknown-tags" class="unknown-tags" role="list"></div>
+          <p class="unknown-hint">No close match found. The AI still considers these in its suggestions.</p>
         </div>
-
-        <!-- Top Predictions -->
         <div id="top-predictions-section" class="top-pred-section" hidden>
           <p class="matched-label">Other Possible Conditions:</p>
-          <div id="top-predictions-list" class="top-pred-list" role="list" aria-label="Other possible conditions"></div>
+          <div id="top-predictions-list" class="top-pred-list" role="list"></div>
         </div>
       </div>
 
-      <!-- AI Suggestions Card -->
       <div class="card result-card suggestions-card">
         <h2 class="result-section-title">🤖 AI Health Suggestions</h2>
-        <p class="suggestions-powered" id="suggestions-powered">Powered by AI</p>
-        <div id="suggestions-content" class="suggestions-content" role="region" aria-label="AI health suggestions"
-          aria-live="polite"></div>
+        <p class="suggestions-powered">Powered by LLaMA 3.3 70B via Groq</p>
+        <div id="suggestions-content" class="suggestions-content" role="region" aria-live="polite"></div>
       </div>
 
-      <!-- Disclaimer Card -->
-      <div class="disclaimer-card" role="complementary" aria-label="Medical disclaimer">
-        <div class="disclaimer-icon" aria-hidden="true">⚕️</div>
+      <div class="disclaimer-card" role="complementary">
+        <div class="disclaimer-icon">⚕️</div>
         <div class="disclaimer-text">
           <strong>Medical Disclaimer</strong>
           <p id="disclaimer-text"></p>
         </div>
       </div>
-
-      <!-- New Analysis Button -->
       <div class="new-analysis-wrapper">
-        <button id="new-analysis-btn" class="btn-secondary" aria-label="Start new symptom analysis">
-          ← New Analysis
-        </button>
+        <button id="new-analysis-btn" class="btn-secondary">← New Analysis</button>
       </div>
-
     </section>
-
   </main>
 
-  <!-- Footer -->
   <footer class="footer" role="contentinfo">
     <p>HealthAI &copy; 2026 &mdash; For educational and informational purposes only.</p>
     <p>Always consult a qualified healthcare professional for medical advice.</p>
   </footer>
 
   <script>
-    // ─── State ───────────────────────────────────────────────────────────────
+    // ── State ─────────────────────────────────────────────────────────────────
     const state = {
-      selectedSymptoms: new Set(),   // known symptoms (in dataset)
-      customSymptoms: new Set(),   // free-typed symptoms (may be unknown)
+      currentStep: 1,
+      profile: {},
+      selectedSymptoms: new Set(),
+      customSymptoms: new Set(),
       allSymptoms: [],
     };
 
-    // ─── DOM refs ────────────────────────────────────────────────────────────
+    // ── BMI Calculator ────────────────────────────────────────────────────────
+    function calcBMI() {
+      const h = parseFloat(document.getElementById('p-height').value);
+      const w = parseFloat(document.getElementById('p-weight').value);
+      const disp = document.getElementById('bmi-display');
+      if (!h || !w || h < 50 || w < 10) { disp.hidden = true; return; }
+      const bmi = w / ((h / 100) ** 2);
+      const rounded = bmi.toFixed(1);
+      let cat, color, pct;
+      if (bmi < 18.5) { cat = 'Underweight'; color = '#06b6d4'; pct = (bmi / 40) * 100; }
+      else if (bmi < 25) { cat = 'Normal'; color = '#10b981'; pct = (bmi / 40) * 100; }
+      else if (bmi < 30) { cat = 'Overweight'; color = '#f59e0b'; pct = (bmi / 40) * 100; }
+      else { cat = 'Obese'; color = '#ef4444'; pct = Math.min((bmi / 40) * 100, 100); }
+      document.getElementById('bmi-value').textContent = rounded;
+      const badge = document.getElementById('bmi-category');
+      badge.textContent = cat;
+      badge.className = 'bmi-badge';
+      badge.style.background = color + '22';
+      badge.style.borderColor = color + '55';
+      badge.style.color = color;
+      document.getElementById('bmi-bar-fill').style.width = pct + '%';
+      document.getElementById('bmi-bar-fill').style.background = color;
+      disp.hidden = false;
+    }
+
+    // ── Wizard Navigation ─────────────────────────────────────────────────────
+    function goToStep(n) {
+      document.getElementById(`step-panel-${state.currentStep}`).hidden = true;
+      document.getElementById(`nav-${state.currentStep}`).classList.remove('active');
+      state.currentStep = n;
+      document.getElementById(`step-panel-${n}`).hidden = false;
+      document.getElementById(`nav-${n}`).classList.add('active', 'done');
+      document.getElementById('wizard-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function validateStep(step) {
+      if (step === 1) {
+        const v = document.getElementById('full-name').value.trim();
+        if (!v) { alert('Please enter your full name.'); return false; }
+      }
+      if (step === 2) {
+        const age = document.getElementById('p-age').value;
+        const gen = document.getElementById('p-gender').value;
+        if (!age || age < 1) { alert('Please enter a valid age.'); return false; }
+        if (!gen) { alert('Please select your gender.'); return false; }
+      }
+      if (step === 3) {
+        const h = document.getElementById('p-height').value;
+        const w = document.getElementById('p-weight').value;
+        if (!h || !w) { alert('Please enter height and weight.'); return false; }
+      }
+      return true;
+    }
+
+    document.querySelectorAll('.wizard-next-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cur = state.currentStep;
+        if (!validateStep(cur)) return;
+        goToStep(parseInt(btn.dataset.next));
+      });
+    });
+
+    document.querySelectorAll('[data-back]').forEach(btn => {
+      btn.addEventListener('click', () => goToStep(parseInt(btn.dataset.back)));
+    });
+
+    // ── Finish Wizard ─────────────────────────────────────────────────────────
+    document.getElementById('start-symptom-btn').addEventListener('click', () => {
+      // Collect profile
+      const h = parseFloat(document.getElementById('p-height').value);
+      const w = parseFloat(document.getElementById('p-weight').value);
+      const bmi = (h && w) ? parseFloat((w / ((h / 100) ** 2)).toFixed(1)) : null;
+      let bmiCat = null;
+      if (bmi) {
+        if (bmi < 18.5) bmiCat = 'Underweight';
+        else if (bmi < 25) bmiCat = 'Normal';
+        else if (bmi < 30) bmiCat = 'Overweight';
+        else bmiCat = 'Obese';
+      }
+      const diseases = [...document.querySelectorAll('#disease-chips input:checked')].map(c => c.value).filter(v => v !== 'None');
+      const stress = document.querySelector('input[name="stress"]:checked')?.value || 'Low';
+
+      state.profile = {
+        full_name: document.getElementById('full-name').value.trim(),
+        age: parseInt(document.getElementById('p-age').value),
+        gender: document.getElementById('p-gender').value,
+        height_cm: h || null,
+        weight_kg: w || null,
+        bmi: bmi,
+        bmi_category: bmiCat,
+        smoking: document.getElementById('p-smoking').value,
+        alcohol: document.getElementById('p-alcohol').value,
+        physical_activity: document.getElementById('p-activity').value,
+        sleep_duration: document.getElementById('p-sleep').value,
+        diet_type: document.getElementById('p-diet').value,
+        stress_level: stress,
+        existing_diseases: diseases.length ? diseases : ['None'],
+        allergies: document.getElementById('p-allergies').value.trim() || 'None',
+      };
+
+      // Hide wizard, show profile bar + symptom section
+      document.getElementById('wizard-wrapper').hidden = true;
+      document.getElementById('profile-bar').hidden = false;
+      document.getElementById('symptom-section').hidden = false;
+
+      // Update profile bar
+      document.getElementById('profile-name-display').textContent = state.profile.full_name || 'User';
+      let meta = `${state.profile.age}y • ${state.profile.gender}`;
+      if (bmi) meta += ` • BMI ${bmi} (${bmiCat})`;
+      document.getElementById('profile-meta-display').textContent = meta;
+
+      document.getElementById('symptom-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    document.getElementById('edit-profile-btn').addEventListener('click', () => {
+      document.getElementById('wizard-wrapper').hidden = false;
+      document.getElementById('profile-bar').hidden = true;
+      document.getElementById('symptom-section').hidden = true;
+      document.getElementById('results-section').hidden = true;
+      goToStep(1);
+    });
+
+    // ── Symptoms ──────────────────────────────────────────────────────────────
     const searchInput = document.getElementById('symptom-search');
     const addCustomBtn = document.getElementById('add-custom-btn');
     const suggestionsList = document.getElementById('suggestions-list');
     const selectedDiv = document.getElementById('selected-symptoms');
     const tagsPlaceholder = document.getElementById('tags-placeholder');
-    const healthForm = document.getElementById('health-form');
-    const analyzeBtn = document.getElementById('analyze-btn');
-    const ageInput = document.getElementById('age-input');
-    const genderSelect = document.getElementById('gender-select');
-    const errorMsg = document.getElementById('error-msg');
-    const errorText = document.getElementById('error-text');
-    const loadingState = document.getElementById('loading-state');
-    const resultsSection = document.getElementById('results-section');
 
-    // ─── Fetch all symptoms + provider info on load ─────────────────────────────────
     async function loadSymptoms() {
-      try {
-        const res = await fetch('/symptoms');
-        const data = await res.json();
-        state.allSymptoms = data.symptoms || [];
-      } catch (e) {
-        console.warn('Could not load symptom list:', e);
-      }
+      try { const r = await fetch('/symptoms'); state.allSymptoms = (await r.json()).symptoms || []; } catch (e) { }
     }
 
-    async function loadProviderInfo() {
-      try {
-        const res = await fetch('/provider');
-        const info = await res.json();
-        const badge = document.getElementById('llm-badge');
-        const powered = document.getElementById('suggestions-powered');
-        if (info.cloud === false) {
-          // Ollama / local model
-          badge.textContent = `${info.model} (Local)`;
-          powered.textContent = `Powered by ${info.model} via Ollama (running locally)`;
-        } else {
-          badge.textContent = `${info.model}`;
-          powered.textContent = `Powered by ${info.model} via ${info.provider}`;
-        }
-      } catch (e) {
-        console.warn('Could not load provider info:', e);
-      }
-    }
+    function formatLabel(s) { return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); }
 
-    // ─── Format symptom label ─────────────────────────────────────────────────
-    function formatLabel(sym) {
-      return sym.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    }
-
-    // ─── Autocomplete ─────────────────────────────────────────────────────────
-    function showSuggestions(query) {
-      if (!query || query.length < 2) {
-        hideSuggestions();
-        return;
-      }
-      const q = query.toLowerCase();
-      const matches = state.allSymptoms
-        .filter(s => s.includes(q) || formatLabel(s).toLowerCase().includes(q))
-        .filter(s => !state.selectedSymptoms.has(s))
-        .slice(0, 8);
-
-      if (!matches.length) {
-        hideSuggestions();
-        return;
-      }
-
+    function showSuggestions(q) {
+      if (!q || q.length < 2) { hideSuggestions(); return; }
+      const matches = state.allSymptoms.filter(s => (s.includes(q) || formatLabel(s).toLowerCase().includes(q)) && !state.selectedSymptoms.has(s)).slice(0, 8);
+      if (!matches.length) { hideSuggestions(); return; }
       suggestionsList.innerHTML = '';
       matches.forEach(sym => {
         const li = document.createElement('li');
-        li.setAttribute('role', 'option');
-        li.className = 'suggestion-item';
-        li.textContent = formatLabel(sym);
-        li.dataset.symptom = sym;
-        li.addEventListener('mousedown', (e) => {
-          e.preventDefault();
-          addKnownSymptom(sym);
-          searchInput.value = '';
-          hideSuggestions();
-          searchInput.focus();
-        });
+        li.className = 'suggestion-item'; li.role = 'option'; li.textContent = formatLabel(sym); li.dataset.symptom = sym;
+        li.addEventListener('mousedown', e => { e.preventDefault(); addKnown(sym); searchInput.value = ''; hideSuggestions(); searchInput.focus(); });
         suggestionsList.appendChild(li);
       });
-
-      suggestionsList.hidden = false;
-      searchInput.setAttribute('aria-expanded', 'true');
+      suggestionsList.hidden = false; searchInput.setAttribute('aria-expanded', 'true');
     }
+    function hideSuggestions() { suggestionsList.hidden = true; suggestionsList.innerHTML = ''; searchInput.setAttribute('aria-expanded', 'false'); }
 
-    function hideSuggestions() {
-      suggestionsList.hidden = true;
-      suggestionsList.innerHTML = '';
-      searchInput.setAttribute('aria-expanded', 'false');
-    }
-
-    searchInput.addEventListener('input', () => showSuggestions(searchInput.value.trim()));
+    searchInput.addEventListener('input', () => showSuggestions(searchInput.value.trim().toLowerCase()));
     searchInput.addEventListener('blur', () => setTimeout(hideSuggestions, 150));
-    searchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') hideSuggestions();
-      if (e.key === 'Enter') { e.preventDefault(); addTypedSymptom(); }
-    });
+    searchInput.addEventListener('keydown', e => { if (e.key === 'Escape') hideSuggestions(); if (e.key === 'Enter') { e.preventDefault(); addTyped(); } });
+    addCustomBtn.addEventListener('click', addTyped);
 
-    // ─── Add Symptoms ─────────────────────────────────────────────────────────
-    // Add a KNOWN symptom (from autocomplete/quick buttons)
-    function addKnownSymptom(sym) {
-      if (state.selectedSymptoms.has(sym)) return;
-      if (totalCount() >= 20) return;
-      state.selectedSymptoms.add(sym);
-      renderTags();
+    function totalCount() { return state.selectedSymptoms.size + state.customSymptoms.size; }
+
+    function addKnown(sym) {
+      if (state.selectedSymptoms.has(sym) || totalCount() >= 20) return;
+      state.selectedSymptoms.add(sym); renderTags();
     }
-
-    // Add ANY typed text — known OR custom/free-text
-    function addTypedSymptom() {
-      const raw = searchInput.value.trim();
-      if (!raw) return;
-
+    function addTyped() {
+      const raw = searchInput.value.trim(); if (!raw) return;
       const norm = raw.toLowerCase().replace(/\s+/g, '_');
-
-      // If it's a known symptom, add as known
-      if (state.allSymptoms.includes(norm)) {
-        addKnownSymptom(norm);
-      } else {
-        // Add as custom (free-text) symptom
-        if (!state.customSymptoms.has(raw) && totalCount() < 20) {
-          state.customSymptoms.add(raw);
-          renderTags();
-        }
-      }
-      searchInput.value = '';
-      hideSuggestions();
-      searchInput.focus();
+      if (state.allSymptoms.includes(norm)) { addKnown(norm); }
+      else if (!state.customSymptoms.has(raw) && totalCount() < 20) { state.customSymptoms.add(raw); renderTags(); }
+      searchInput.value = ''; hideSuggestions(); searchInput.focus();
     }
-
-    function totalCount() {
-      return state.selectedSymptoms.size + state.customSymptoms.size;
-    }
-
-    function removeSymptom(sym, isCustom) {
-      if (isCustom) state.customSymptoms.delete(sym);
-      else state.selectedSymptoms.delete(sym);
-      renderTags();
-    }
-
+    function removeSymptom(sym, isCustom) { if (isCustom) state.customSymptoms.delete(sym); else state.selectedSymptoms.delete(sym); renderTags(); }
     function renderTags() {
       selectedDiv.querySelectorAll('.tag').forEach(t => t.remove());
-
-      if (totalCount() === 0) {
-        tagsPlaceholder.hidden = false;
-      } else {
-        tagsPlaceholder.hidden = true;
-
-        // Known (green) tags
-        state.selectedSymptoms.forEach(sym => {
-          const tag = document.createElement('button');
-          tag.type = 'button';
-          tag.className = 'tag tag-known';
-          tag.setAttribute('role', 'listitem');
-          tag.setAttribute('aria-label', `Remove ${formatLabel(sym)}`);
-          tag.innerHTML = `<span>${formatLabel(sym)}</span><span class="tag-remove" aria-hidden="true">×</span>`;
-          tag.addEventListener('click', () => removeSymptom(sym, false));
-          selectedDiv.appendChild(tag);
-        });
-
-        // Custom / free-typed (orange) tags
-        state.customSymptoms.forEach(sym => {
-          const tag = document.createElement('button');
-          tag.type = 'button';
-          tag.className = 'tag tag-custom';
-          tag.setAttribute('role', 'listitem');
-          tag.setAttribute('aria-label', `Remove ${sym}`);
-          tag.innerHTML = `<span>✎ ${sym}</span><span class="tag-remove" aria-hidden="true">×</span>`;
-          tag.addEventListener('click', () => removeSymptom(sym, true));
-          selectedDiv.appendChild(tag);
-        });
-      }
-    }
-
-    // ─── Quick add buttons ────────────────────────────────────────────────────
-    document.querySelectorAll('.quick-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const sym = btn.dataset.symptom;
-        addKnownSymptom(sym);
-        btn.classList.add('quick-btn-added');
-        setTimeout(() => btn.classList.remove('quick-btn-added'), 1000);
+      if (totalCount() === 0) { tagsPlaceholder.hidden = false; return; }
+      tagsPlaceholder.hidden = true;
+      state.selectedSymptoms.forEach(sym => {
+        const t = document.createElement('button'); t.type = 'button'; t.className = 'tag tag-known';
+        t.innerHTML = `<span>${formatLabel(sym)}</span><span class="tag-remove" aria-hidden="true">×</span>`;
+        t.addEventListener('click', () => removeSymptom(sym, false)); selectedDiv.appendChild(t);
       });
-    });
-
-    // + Add button
-    addCustomBtn.addEventListener('click', () => addTypedSymptom());
-
-    // ─── Show / hide error ────────────────────────────────────────────────────
-    function showError(msg) {
-      errorText.textContent = msg;
-      errorMsg.hidden = false;
-      errorMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      state.customSymptoms.forEach(sym => {
+        const t = document.createElement('button'); t.type = 'button'; t.className = 'tag tag-custom';
+        t.innerHTML = `<span>✎ ${sym}</span><span class="tag-remove" aria-hidden="true">×</span>`;
+        t.addEventListener('click', () => removeSymptom(sym, true)); selectedDiv.appendChild(t);
+      });
     }
-    function hideError() { errorMsg.hidden = true; }
+    document.querySelectorAll('.quick-btn').forEach(btn => btn.addEventListener('click', () => {
+      addKnown(btn.dataset.symptom); btn.classList.add('quick-btn-added'); setTimeout(() => btn.classList.remove('quick-btn-added'), 1000);
+    }));
 
-    // ─── Loading steps animation ──────────────────────────────────────────────
-    let stepTimer = null;
+    // ── Error ─────────────────────────────────────────────────────────────────
+    function showError(msg) { document.getElementById('error-text').textContent = msg; document.getElementById('error-msg').hidden = false; }
+    function hideError() { document.getElementById('error-msg').hidden = true; }
+
+    // ── Loading animation ─────────────────────────────────────────────────────
+    let stepTimer;
     function startLoadingSteps() {
-      const steps = ['step-1', 'step-2', 'step-3'];
-      let i = 0;
-      steps.forEach(id => {
-        const el = document.getElementById(id);
-        el.querySelector('.step-icon').className = 'step-icon';
-      });
+      ['step-1', 'step-2', 'step-3'].forEach(id => document.getElementById(id).querySelector('.step-icon').className = 'step-icon');
       document.getElementById('step-1').querySelector('.step-icon').classList.add('step-active');
-      stepTimer = setInterval(() => {
-        i++;
-        if (i < steps.length) {
-          document.getElementById(steps[i]).querySelector('.step-icon').classList.add('step-active');
-        } else {
-          clearInterval(stepTimer);
-        }
-      }, 1500);
+      let i = 0; stepTimer = setInterval(() => { i++; if (i < 3) document.getElementById(`step-${i + 1}`).querySelector('.step-icon').classList.add('step-active'); else clearInterval(stepTimer); }, 1500);
     }
     function stopLoadingSteps() { clearInterval(stepTimer); }
 
-    // ─── Confidence arc update ─────────────────────────────────────────────────
     function setConfidenceArc(pct) {
-      const circumference = 2 * Math.PI * 34; // 213.6
-      const offset = circumference - (pct / 100) * circumference;
+      const offset = 213.6 - (pct / 100) * 213.6;
       const arc = document.getElementById('conf-arc');
       arc.style.transition = 'stroke-dashoffset 1s ease';
       arc.style.strokeDashoffset = offset;
     }
 
-    // ─── Render markdown-like suggestions ─────────────────────────────────────
+    // ── Markdown renderer ─────────────────────────────────────────────────────
     function renderMarkdown(text) {
-      // Very lightweight markdown renderer
       return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/^## (.+)$/gm, '<h3 class="md-h3">$1</h3>')
-        .replace(/^### (.+)$/gm, '<h4 class="md-h4">$1</h4>')
         .replace(/^---+$/gm, '<hr class="md-hr"/>')
         .replace(/^- (.+)$/gm, '<li class="md-li">$1</li>')
-        .replace(/(<li[^>]*>.*<\/li>\n?)+/gs, match => `<ul class="md-ul">${match}</ul>`)
+        .replace(/(<li[^>]*>.*<\/li>\n?)+/gs, m => `<ul class="md-ul">${m}</ul>`)
         .replace(/\n\n/g, '</p><p class="md-p">')
         .replace(/^(?!<[hul]|<p|<hr)(.+)$/gm, '<p class="md-p">$1</p>')
-        .replace(/⚠️ \*\*Medical Disclaimer\*\*: (.+)/g,
-          '<div class="inline-disclaimer">⚠️ <strong>Medical Disclaimer</strong>: $1</div>');
+        .replace(/⚠️ \*\*Medical Disclaimer\*\*: (.+)/g, '<div class="inline-disclaimer">⚠️ <strong>Medical Disclaimer</strong>: $1</div>');
     }
 
-    // ─── Form submit ──────────────────────────────────────────────────────────
-    healthForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      hideError();
-
+    // ── Form submit ───────────────────────────────────────────────────────────
+    document.getElementById('health-form').addEventListener('submit', async e => {
+      e.preventDefault(); hideError();
       const symptoms = [...state.selectedSymptoms, ...state.customSymptoms];
-      if (symptoms.length === 0) {
-        showError('Please add at least one symptom. Use the search or type any symptom and press Enter / click + Add.');
-        searchInput.focus();
-        return;
-      }
+      if (!symptoms.length) { showError('Please add at least one symptom.'); searchInput.focus(); return; }
 
-      const age = ageInput.value ? parseInt(ageInput.value, 10) : null;
-      const gender = genderSelect.value || null;
-
-      // Show loading
-      analyzeBtn.disabled = true;
-      analyzeBtn.querySelector('.btn-text').textContent = 'Analyzing…';
-      loadingState.hidden = false;
-      resultsSection.hidden = true;
+      const analyzeBtn = document.getElementById('analyze-btn');
+      analyzeBtn.disabled = true; analyzeBtn.querySelector('.btn-text').textContent = 'Analyzing…';
+      document.getElementById('loading-state').hidden = false;
+      document.getElementById('results-section').hidden = true;
       startLoadingSteps();
-      loadingState.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById('loading-state').scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       try {
         const res = await fetch('/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ symptoms, age, gender }),
+          body: JSON.stringify({ symptoms, profile: state.profile }),
         });
-
         const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || `Server error (${res.status})`);
-        }
-
+        if (!res.ok) throw new Error(data.error || `Server error (${res.status})`);
         stopLoadingSteps();
-        loadingState.hidden = true;
+        document.getElementById('loading-state').hidden = true;
         renderResults(data);
-        resultsSection.hidden = false;
-        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
+        document.getElementById('results-section').hidden = false;
+        document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
       } catch (err) {
         stopLoadingSteps();
-        loadingState.hidden = true;
+        document.getElementById('loading-state').hidden = true;
         showError(err.message || 'Something went wrong. Please try again.');
       } finally {
-        analyzeBtn.disabled = false;
-        analyzeBtn.querySelector('.btn-text').textContent = 'Analyze My Symptoms';
+        analyzeBtn.disabled = false; analyzeBtn.querySelector('.btn-text').textContent = 'Analyze My Symptoms';
       }
     });
 
-    // ─── Render results ───────────────────────────────────────────────────────
+    // ── Render Results ────────────────────────────────────────────────────────
     function renderResults(data) {
-      // Disease name
       document.getElementById('disease-name').textContent = data.predicted_disease;
-
-      // Confidence
       const pct = data.confidence || 0;
       document.getElementById('confidence-pct').textContent = `${pct.toFixed(1)}%`;
       document.getElementById('confidence-bar').style.width = `${pct}%`;
-      document.getElementById('confidence-bar').setAttribute('aria-valuenow', pct);
-
-      // Confidence label
-      const confLabel = pct >= 80 ? 'High' : pct >= 55 ? 'Moderate' : 'Low';
+      const lbl = pct >= 80 ? 'High' : pct >= 55 ? 'Moderate' : 'Low';
       const confEl = document.getElementById('conf-label');
-      confEl.textContent = confLabel;
-      confEl.className = `conf-label-text conf-${confLabel.toLowerCase()}`;
-
-      // Confidence arc
+      confEl.textContent = lbl; confEl.className = `conf-label-text conf-${lbl.toLowerCase()}`;
       setTimeout(() => setConfidenceArc(pct), 100);
 
-      // Matched symptoms (exact)
-      const matchedSec = document.getElementById('matched-symptoms-section');
-      const matchedTags = document.getElementById('matched-tags');
-      if (data.matched_symptoms && data.matched_symptoms.length > 0) {
-        matchedTags.innerHTML = data.matched_symptoms.map(s =>
-          `<span class="matched-tag" role="listitem">✓ ${formatLabel(s)}</span>`
-        ).join('');
-        matchedSec.hidden = false;
-      } else {
-        matchedSec.hidden = true;
-      }
+      // Matched
+      const matchSec = document.getElementById('matched-symptoms-section');
+      const matchTags = document.getElementById('matched-tags');
+      if ((data.matched_symptoms || []).length) {
+        matchTags.innerHTML = data.matched_symptoms.map(s => `<span class="matched-tag" role="listitem">✓ ${formatLabel(s)}</span>`).join('');
+        matchSec.hidden = false;
+      } else matchSec.hidden = true;
 
-      // Auto-mapped symptoms (fuzzy matched → used in ML)
-      const mappedSec = document.getElementById('mapped-symptoms-section');
-      const mappedTags = document.getElementById('mapped-tags');
-      const mappeds = data.mapped_symptoms || [];
-      if (mappeds.length > 0) {
-        mappedTags.innerHTML = mappeds.map(m =>
-          `<div class="mapped-tag-row" role="listitem">
-            <span class="tag-custom mapped-input">✎ ${m.input}</span>
-            <span class="mapped-arrow" aria-hidden="true">→</span>
-            <span class="mapped-tag">✓ ${formatLabel(m.mapped_to)}</span>
-          </div>`
-        ).join('');
-        mappedSec.hidden = false;
-      } else {
-        mappedSec.hidden = true;
-      }
+      // Mapped
+      const mapSec = document.getElementById('mapped-symptoms-section');
+      const mapTags = document.getElementById('mapped-tags');
+      if ((data.mapped_symptoms || []).length) {
+        mapTags.innerHTML = data.mapped_symptoms.map(m => `<div class="mapped-tag-row" role="listitem"><span class="tag-custom mapped-input">✎ ${m.input}</span><span class="mapped-arrow">→</span><span class="mapped-tag">✓ ${formatLabel(m.mapped_to)}</span></div>`).join('');
+        mapSec.hidden = false;
+      } else mapSec.hidden = true;
 
-      // Unknown symptoms (no match — LLM context only)
-      const unknownSec = document.getElementById('unknown-symptoms-section');
-      const unknownTags = document.getElementById('unknown-tags');
-      const unknowns = data.unknown_symptoms || [];
-      if (unknowns.length > 0) {
-        unknownTags.innerHTML = unknowns.map(u => {
-          const label = typeof u === 'object' ? u.input : u;
-          return `<div class="unknown-tag-row" role="listitem">
-            <span class="unknown-tag">✗ ${label}</span>
-            <span class="unknown-closest">Sent to AI for context</span>
-          </div>`;
-        }).join('');
-        unknownSec.hidden = false;
-      } else {
-        unknownSec.hidden = true;
-      }
+      // Unknown
+      const unkSec = document.getElementById('unknown-symptoms-section');
+      const unkTags = document.getElementById('unknown-tags');
+      if ((data.unknown_symptoms || []).length) {
+        unkTags.innerHTML = data.unknown_symptoms.map(u => `<div class="unknown-tag-row" role="listitem"><span class="unknown-tag">✗ ${typeof u === 'object' ? u.input : u}</span><span class="unknown-closest">Sent to AI for context</span></div>`).join('');
+        unkSec.hidden = false;
+      } else unkSec.hidden = true;
 
-      // Top predictions (skip the first one, it's already shown)
+      // Top predictions
       const topSec = document.getElementById('top-predictions-section');
       const topList = document.getElementById('top-predictions-list');
       const others = (data.top_predictions || []).slice(1, 4);
-      if (others.length > 0) {
-        topList.innerHTML = others.map(p =>
-          `<div class="top-pred-item" role="listitem">
-            <span class="top-pred-name">${p.disease}</span>
-            <span class="top-pred-conf">${p.confidence.toFixed(1)}%</span>
-          </div>`
-        ).join('');
+      if (others.length) {
+        topList.innerHTML = others.map(p => `<div class="top-pred-item" role="listitem"><span class="top-pred-name">${p.disease}</span><span class="top-pred-conf">${p.confidence.toFixed(1)}%</span></div>`).join('');
         topSec.hidden = false;
-      } else {
-        topSec.hidden = true;
-      }
+      } else topSec.hidden = true;
 
-      // AI suggestions
-      const suggestionsContent = document.getElementById('suggestions-content');
-      suggestionsContent.innerHTML = renderMarkdown(data.suggestions || '');
-
-      // Disclaimer
+      document.getElementById('suggestions-content').innerHTML = renderMarkdown(data.suggestions || '');
       document.getElementById('disclaimer-text').textContent = data.disclaimer || '';
     }
 
-    // ─── New analysis button ──────────────────────────────────────────────────
     document.getElementById('new-analysis-btn').addEventListener('click', () => {
-      resultsSection.hidden = true;
-      state.selectedSymptoms.clear();
-      state.customSymptoms.clear();
-      renderTags();
-      ageInput.value = '';
-      genderSelect.value = '';
-      healthForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('results-section').hidden = true;
+      state.selectedSymptoms.clear(); state.customSymptoms.clear(); renderTags();
+      document.getElementById('symptom-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
       searchInput.focus();
     });
 
-    // ─── Init ─────────────────────────────────────────────────────────────────
+    // ── Init ──────────────────────────────────────────────────────────────────
     loadSymptoms();
-    loadProviderInfo();
   </script>
-
 </body>
 
 </html>

@@ -100,8 +100,10 @@ def analyze():
             return jsonify({"error": "No JSON body provided."}), 400
 
         symptoms = data.get("symptoms", [])
-        age = data.get("age")
-        gender = data.get("gender")
+        profile  = data.get("profile", {})
+        # Back-compat: also accept top-level age/gender
+        age    = profile.get("age")    or data.get("age")
+        gender = profile.get("gender") or data.get("gender")
 
         if not symptoms or not isinstance(symptoms, list):
             return jsonify({"error": "Please provide at least one symptom."}), 400
@@ -109,18 +111,15 @@ def analyze():
         if len(symptoms) > 20:
             return jsonify({"error": "Too many symptoms provided (max 20)."}), 400
 
-        # Validate age if provided
+        # Validate age
         if age is not None:
             try:
                 age = int(age)
-                if age < 1 or age > 120:
-                    age = None
+                if age < 1 or age > 120: age = None
             except (ValueError, TypeError):
                 age = None
 
-        logger.info(
-            f"Analyzing: symptoms={symptoms}, age={age}, gender={gender}"
-        )
+        logger.info(f"Analyzing: symptoms={symptoms}, profile={profile}")
 
         # Step 1: ML Prediction
         prediction = predict_disease(symptoms)
@@ -146,6 +145,7 @@ def analyze():
             precautions=precautions,
             unknown_symptoms=prediction.get("unknown_symptoms", []),
             mapped_symptoms=prediction.get("mapped_symptoms", []),
+            profile=profile,
         )
 
         return jsonify({
@@ -186,12 +186,19 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=port,
         debug=debug,
-        # Use 'stat' reloader and restrict it to the project root only.
-        # This prevents Flask from watching sklearn/site-packages files
-        # and causing an infinite restart loop.
+        use_reloader=debug,
         reloader_type="stat",
+        exclude_patterns=[
+            # Exclude large data files that cause MemoryError in stat reloader
+            "*/data/*.csv",
+            "*/data/dataset.csv",
+            "*/model/saved_model.pkl",
+            "*/__pycache__/*",
+            "*/.git/*",
+        ],
         extra_files=[
             os.path.join(os.path.dirname(__file__), "templates", "index.html"),
             os.path.join(os.path.dirname(__file__), "static", "style.css"),
         ],
     )
+
