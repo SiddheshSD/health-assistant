@@ -19,7 +19,7 @@ load_dotenv()
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from model.predict import predict_disease
-from groq_client import get_health_suggestions
+from groq_client import get_health_suggestions, get_provider_info
 
 # Configure logging
 logging.basicConfig(
@@ -63,6 +63,12 @@ def index():
 def get_symptoms():
     """Return the list of all known symptoms for the frontend."""
     return jsonify({"symptoms": ALL_SYMPTOMS})
+
+
+@app.route("/provider", methods=["GET"])
+def get_provider():
+    """Return current LLM provider info."""
+    return jsonify(get_provider_info())
 
 
 @app.route("/analyze", methods=["POST"])
@@ -153,6 +159,7 @@ def analyze():
             "description":       description,
             "precautions":       precautions,
             "suggestions":       suggestions,
+            "llm_provider":      get_provider_info(),
             "disclaimer": (
                 "⚠️ This is NOT a substitute for professional medical advice. "
                 "This tool is for informational purposes only. "

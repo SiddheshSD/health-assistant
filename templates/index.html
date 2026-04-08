@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Health Assistant — Symptom Checker</title>
-  <meta name="description" content="AI-powered health assistant that analyzes your symptoms, predicts possible conditions, and provides personalized health suggestions using advanced machine learning and LLaMA AI." />
+  <meta name="description"
+    content="AI-powered health assistant that analyzes your symptoms, predicts possible conditions, and provides personalized health suggestions using advanced machine learning and LLaMA AI." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="/static/style.css" />
 </head>
+
 <body>
 
   <!-- Background Orbs -->
@@ -25,12 +29,12 @@
       <div class="logo">
         <div class="logo-icon" aria-hidden="true">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 2C7.373 2 2 7.373 2 14s5.373 12 12 12 12-5.373 12-12S20.627 2 14 2z" fill="url(#logoGrad)"/>
-            <path d="M14 8v12M8 14h12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M14 2C7.373 2 2 7.373 2 14s5.373 12 12 12 12-5.373 12-12S20.627 2 14 2z" fill="url(#logoGrad)" />
+            <path d="M14 8v12M8 14h12" stroke="white" stroke-width="2.5" stroke-linecap="round" />
             <defs>
               <linearGradient id="logoGrad" x1="2" y1="2" x2="26" y2="26" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="#6366f1"/>
-                <stop offset="100%" stop-color="#06b6d4"/>
+                <stop offset="0%" stop-color="#6366f1" />
+                <stop offset="100%" stop-color="#06b6d4" />
               </linearGradient>
             </defs>
           </svg>
@@ -53,10 +57,11 @@
         AI-Powered <span class="gradient-text">Symptom Analysis</span>
       </h1>
       <p class="hero-subtitle">
-        Describe your symptoms and get instant insights powered by machine learning and LLaMA 3.3 AI. Always consult a doctor for medical advice.
+        Describe your symptoms and get instant insights powered by machine learning and LLaMA 3.3 AI. Always consult a
+        doctor for medical advice.
       </p>
       <div class="hero-badges" aria-label="Technology stack">
-        <span class="tech-badge">🤖 LLaMA 3.3 70B</span>
+        <span class="tech-badge">🤖 <span id="llm-badge">AI Model</span></span>
         <span class="tech-badge">🧬 Random Forest ML</span>
         <span class="tech-badge">41 Conditions</span>
         <span class="tech-badge">131 Symptoms</span>
@@ -79,31 +84,28 @@
           </label>
           <div class="search-wrapper">
             <svg class="search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M15 15l-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5" />
+              <path d="M15 15l-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
             </svg>
-            <input
-              type="text"
-              id="symptom-search"
-              class="input-field search-input"
-              placeholder="Search known symptoms or type any symptom + press Enter"
-              autocomplete="off"
-              aria-autocomplete="list"
-              aria-controls="suggestions-list"
-              aria-expanded="false"
-            />
+            <input type="text" id="symptom-search" class="input-field search-input"
+              placeholder="Search known symptoms or type any symptom + press Enter" autocomplete="off"
+              aria-autocomplete="list" aria-controls="suggestions-list" aria-expanded="false" />
             <button type="button" id="add-custom-btn" class="add-custom-btn" title="Add typed symptom">
               + Add
             </button>
           </div>
-          <p class="search-hint">Press <kbd>Enter</kbd> or click <strong>+ Add</strong> to add any symptom — even if not in the list.</p>
+          <p class="search-hint">Press <kbd>Enter</kbd> or click <strong>+ Add</strong> to add any symptom — even if not
+            in the list.</p>
 
           <!-- Autocomplete Dropdown -->
-          <ul id="suggestions-list" class="suggestions-dropdown" role="listbox" aria-label="Symptom suggestions" hidden></ul>
+          <ul id="suggestions-list" class="suggestions-dropdown" role="listbox" aria-label="Symptom suggestions" hidden>
+          </ul>
 
           <!-- Selected symptoms tags -->
-          <div id="selected-symptoms" class="selected-tags" role="list" aria-label="Selected symptoms" aria-live="polite">
-            <span class="tags-placeholder" id="tags-placeholder">No symptoms selected yet. Use search above or type any symptom and press Enter.</span>
+          <div id="selected-symptoms" class="selected-tags" role="list" aria-label="Selected symptoms"
+            aria-live="polite">
+            <span class="tags-placeholder" id="tags-placeholder">No symptoms selected yet. Use search above or type any
+              symptom and press Enter.</span>
           </div>
 
           <!-- Quick-add common symptoms -->
@@ -128,15 +130,8 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="age-input">Age (optional)</label>
-            <input
-              type="number"
-              id="age-input"
-              class="input-field"
-              placeholder="e.g. 28"
-              min="1"
-              max="120"
-              aria-describedby="age-hint"
-            />
+            <input type="number" id="age-input" class="input-field" placeholder="e.g. 28" min="1" max="120"
+              aria-describedby="age-hint" />
             <span id="age-hint" class="field-hint">Enter your age in years</span>
           </div>
           <div class="form-group">
@@ -149,7 +144,7 @@
                 <option value="Other">Other</option>
               </select>
               <svg class="select-arrow" viewBox="0 0 12 8" fill="none" aria-hidden="true">
-                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
               </svg>
             </div>
             <span id="gender-hint" class="field-hint">Helps personalize suggestions</span>
@@ -210,14 +205,14 @@
           </div>
           <div class="confidence-circle-wrapper" aria-label="Confidence score">
             <svg class="confidence-circle" viewBox="0 0 80 80" aria-hidden="true">
-              <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6"/>
-              <circle id="conf-arc" cx="40" cy="40" r="34" fill="none" stroke="url(#confGrad)"
-                      stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6"
-                      stroke-dashoffset="213.6" transform="rotate(-90 40 40)"/>
+              <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6" />
+              <circle id="conf-arc" cx="40" cy="40" r="34" fill="none" stroke="url(#confGrad)" stroke-width="6"
+                stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6"
+                transform="rotate(-90 40 40)" />
               <defs>
                 <linearGradient id="confGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#6366f1"/>
-                  <stop offset="100%" stop-color="#06b6d4"/>
+                  <stop offset="0%" stop-color="#6366f1" />
+                  <stop offset="100%" stop-color="#06b6d4" />
                 </linearGradient>
               </defs>
             </svg>
@@ -234,7 +229,8 @@
             <span>Model Confidence</span>
             <span id="conf-label" class="conf-label-text"></span>
           </div>
-          <div class="confidence-bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Confidence level">
+          <div class="confidence-bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+            aria-label="Confidence level">
             <div id="confidence-bar" class="confidence-bar-fill"></div>
           </div>
         </div>
@@ -249,7 +245,8 @@
         <div id="mapped-symptoms-section" class="mapped-section" hidden>
           <p class="matched-label"><span class="label-dot dot-blue"></span>Auto-Mapped &amp; Used in Prediction:</p>
           <div id="mapped-tags" class="mapped-tags" role="list" aria-label="Auto-mapped symptoms"></div>
-          <p class="mapped-hint">These free-typed symptoms were intelligently mapped to the nearest known symptom and <strong>included in the ML prediction</strong>.</p>
+          <p class="mapped-hint">These free-typed symptoms were intelligently mapped to the nearest known symptom and
+            <strong>included in the ML prediction</strong>.</p>
         </div>
 
         <!-- Unknown Symptoms Warning -->
@@ -259,7 +256,8 @@
             <p class="matched-label"><span class="label-dot dot-orange"></span>Could Not Map (LLM context only):</p>
           </div>
           <div id="unknown-tags" class="unknown-tags" role="list" aria-label="Unknown symptoms"></div>
-          <p class="unknown-hint">No close match found in dataset. The AI still considers these symptoms in its suggestions.</p>
+          <p class="unknown-hint">No close match found in dataset. The AI still considers these symptoms in its
+            suggestions.</p>
         </div>
 
         <!-- Top Predictions -->
@@ -272,8 +270,9 @@
       <!-- AI Suggestions Card -->
       <div class="card result-card suggestions-card">
         <h2 class="result-section-title">🤖 AI Health Suggestions</h2>
-        <p class="suggestions-powered">Powered by LLaMA 3.3 70B via Groq</p>
-        <div id="suggestions-content" class="suggestions-content" role="region" aria-label="AI health suggestions" aria-live="polite"></div>
+        <p class="suggestions-powered" id="suggestions-powered">Powered by AI</p>
+        <div id="suggestions-content" class="suggestions-content" role="region" aria-label="AI health suggestions"
+          aria-live="polite"></div>
       </div>
 
       <!-- Disclaimer Card -->
@@ -306,26 +305,26 @@
     // ─── State ───────────────────────────────────────────────────────────────
     const state = {
       selectedSymptoms: new Set(),   // known symptoms (in dataset)
-      customSymptoms:   new Set(),   // free-typed symptoms (may be unknown)
+      customSymptoms: new Set(),   // free-typed symptoms (may be unknown)
       allSymptoms: [],
     };
 
     // ─── DOM refs ────────────────────────────────────────────────────────────
-    const searchInput     = document.getElementById('symptom-search');
-    const addCustomBtn    = document.getElementById('add-custom-btn');
+    const searchInput = document.getElementById('symptom-search');
+    const addCustomBtn = document.getElementById('add-custom-btn');
     const suggestionsList = document.getElementById('suggestions-list');
-    const selectedDiv     = document.getElementById('selected-symptoms');
+    const selectedDiv = document.getElementById('selected-symptoms');
     const tagsPlaceholder = document.getElementById('tags-placeholder');
-    const healthForm      = document.getElementById('health-form');
-    const analyzeBtn      = document.getElementById('analyze-btn');
-    const ageInput        = document.getElementById('age-input');
-    const genderSelect    = document.getElementById('gender-select');
-    const errorMsg        = document.getElementById('error-msg');
-    const errorText       = document.getElementById('error-text');
-    const loadingState    = document.getElementById('loading-state');
-    const resultsSection  = document.getElementById('results-section');
+    const healthForm = document.getElementById('health-form');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const ageInput = document.getElementById('age-input');
+    const genderSelect = document.getElementById('gender-select');
+    const errorMsg = document.getElementById('error-msg');
+    const errorText = document.getElementById('error-text');
+    const loadingState = document.getElementById('loading-state');
+    const resultsSection = document.getElementById('results-section');
 
-    // ─── Fetch all symptoms on load ──────────────────────────────────────────
+    // ─── Fetch all symptoms + provider info on load ─────────────────────────────────
     async function loadSymptoms() {
       try {
         const res = await fetch('/symptoms');
@@ -333,6 +332,25 @@
         state.allSymptoms = data.symptoms || [];
       } catch (e) {
         console.warn('Could not load symptom list:', e);
+      }
+    }
+
+    async function loadProviderInfo() {
+      try {
+        const res = await fetch('/provider');
+        const info = await res.json();
+        const badge = document.getElementById('llm-badge');
+        const powered = document.getElementById('suggestions-powered');
+        if (info.cloud === false) {
+          // Ollama / local model
+          badge.textContent = `${info.model} (Local)`;
+          powered.textContent = `Powered by ${info.model} via Ollama (running locally)`;
+        } else {
+          badge.textContent = `${info.model}`;
+          powered.textContent = `Powered by ${info.model} via ${info.provider}`;
+        }
+      } catch (e) {
+        console.warn('Could not load provider info:', e);
       }
     }
 
@@ -386,10 +404,10 @@
     }
 
     searchInput.addEventListener('input', () => showSuggestions(searchInput.value.trim()));
-    searchInput.addEventListener('blur',  () => setTimeout(hideSuggestions, 150));
+    searchInput.addEventListener('blur', () => setTimeout(hideSuggestions, 150));
     searchInput.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') hideSuggestions();
-      if (e.key === 'Enter')  { e.preventDefault(); addTypedSymptom(); }
+      if (e.key === 'Enter') { e.preventDefault(); addTypedSymptom(); }
     });
 
     // ─── Add Symptoms ─────────────────────────────────────────────────────────
@@ -429,7 +447,7 @@
 
     function removeSymptom(sym, isCustom) {
       if (isCustom) state.customSymptoms.delete(sym);
-      else          state.selectedSymptoms.delete(sym);
+      else state.selectedSymptoms.delete(sym);
       renderTags();
     }
 
@@ -549,7 +567,7 @@
         return;
       }
 
-      const age    = ageInput.value ? parseInt(ageInput.value, 10) : null;
+      const age = ageInput.value ? parseInt(ageInput.value, 10) : null;
       const gender = genderSelect.value || null;
 
       // Show loading
@@ -622,9 +640,9 @@
       }
 
       // Auto-mapped symptoms (fuzzy matched → used in ML)
-      const mappedSec  = document.getElementById('mapped-symptoms-section');
+      const mappedSec = document.getElementById('mapped-symptoms-section');
       const mappedTags = document.getElementById('mapped-tags');
-      const mappeds    = data.mapped_symptoms || [];
+      const mappeds = data.mapped_symptoms || [];
       if (mappeds.length > 0) {
         mappedTags.innerHTML = mappeds.map(m =>
           `<div class="mapped-tag-row" role="listitem">
@@ -639,9 +657,9 @@
       }
 
       // Unknown symptoms (no match — LLM context only)
-      const unknownSec  = document.getElementById('unknown-symptoms-section');
+      const unknownSec = document.getElementById('unknown-symptoms-section');
       const unknownTags = document.getElementById('unknown-tags');
-      const unknowns    = data.unknown_symptoms || [];
+      const unknowns = data.unknown_symptoms || [];
       if (unknowns.length > 0) {
         unknownTags.innerHTML = unknowns.map(u => {
           const label = typeof u === 'object' ? u.input : u;
@@ -693,7 +711,9 @@
 
     // ─── Init ─────────────────────────────────────────────────────────────────
     loadSymptoms();
+    loadProviderInfo();
   </script>
 
 </body>
+
 </html>
