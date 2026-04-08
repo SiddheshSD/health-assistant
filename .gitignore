@@ -46,4 +46,9 @@ logs/
 
 # Test scripts
 test_mapping.py
-node_modules
+
+# Node
+node_modules/
+.next/
+.turbo/
+*.tsbuildinfo
