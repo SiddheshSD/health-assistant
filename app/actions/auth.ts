@@ -9,25 +9,10 @@ export async function login(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     return { error: error.message };
-  }
-
-  // Check if the user has completed their health profile
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("profile_completed")
-    .eq("id", data.user.id)
-    .single();
-
-  // New or incomplete profile → send to onboarding wizard
-  if (!profile?.profile_completed) {
-    redirect("/register/profile");
   }
 
   redirect("/dashboard");

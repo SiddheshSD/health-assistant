@@ -207,3 +207,98 @@ def get_provider_info() -> dict:
         "model":    GROQ_MODEL,
         "cloud":    True,
     }
+
+
+def get_chat_response(
+    message: str,
+    profile: dict,
+    history: list[dict],
+    max_history: int = 10,
+) -> str:
+    """
+    Context-aware health chatbot using Groq Cloud.
+
+    Args:
+        message:     Latest user message.
+        profile:     User health profile (age, gender, BMI, lifestyle, etc.).
+        history:     Prior messages [{role: "user"|"assistant", content: str}].
+        max_history: Max prior turns to include (to stay within context window).
+
+    Returns:
+        AI response as a markdown string.
+    """
+    # Build profile context string
+    profile_lines = []
+    if profile.get("age"):
+        profile_lines.append(f"- Age: {profile['age']}")
+    if profile.get("gender"):
+        profile_lines.append(f"- Gender: {profile['gender']}")
+    if profile.get("bmi"):
+        category = profile.get("bmi_category", "")
+        profile_lines.append(f"- BMI: {profile['bmi']} ({category})")
+    if profile.get("smoking"):
+        profile_lines.append(f"- Smoking: {profile['smoking']}")
+    if profile.get("alcohol"):
+        profile_lines.append(f"- Alcohol: {profile['alcohol']}")
+    if profile.get("physical_activity"):
+        profile_lines.append(f"- Physical Activity: {profile['physical_activity']}")
+    if profile.get("sleep_duration"):
+        profile_lines.append(f"- Sleep: {profile['sleep_duration']}")
+    if profile.get("diet_type"):
+        profile_lines.append(f"- Diet: {profile['diet_type']}")
+    if profile.get("stress_level"):
+        profile_lines.append(f"- Stress Level: {profile['stress_level']}")
+    if profile.get("existing_diseases"):
+        diseases = profile["existing_diseases"]
+        if diseases and diseases != ["None of the above"]:
+            profile_lines.append(f"- Existing conditions: {', '.join(diseases)}")
+    if profile.get("allergies"):
+        profile_lines.append(f"- Allergies: {profile['allergies']}")
+
+    profile_context = (
+        "**User Health Profile:**\n" + "\n".join(profile_lines)
+        if profile_lines
+        else "No health profile provided."
+    )
+
+    system_prompt = f"""You are HealthAI, a warm, knowledgeable, and empathetic AI health assistant.
+You provide evidence-based health information in a conversational and easy-to-understand way.
+
+{profile_context}
+
+Your guidelines:
+- Use the user's health profile to personalize your responses when relevant
+- Be concise but thorough — use bullet points and markdown for clarity
+- Always end with a brief reminder to consult a doctor for serious concerns
+- Never diagnose — provide information, suggest possibilities, and empower the user
+- If symptoms sound urgent (chest pain, difficulty breathing, etc.) always recommend seeking emergency care immediately
+- Keep responses friendly and supportive, not clinical or cold
+- Respond in the same language the user writes in"""
+
+    # Build message list (system + recent history + new user message)
+    messages = [{"role": "system", "content": system_prompt}]
+
+    # Add conversation history (trim to last N turns)
+    recent_history = history[-(max_history * 2):]  # each turn = 2 messages
+    for h in recent_history:
+        if h.get("role") in ("user", "assistant") and h.get("content"):
+            messages.append({"role": h["role"], "content": h["content"]})
+
+    messages.append({"role": "user", "content": message})
+
+    try:
+        client = _get_client()
+        completion = client.chat.completions.create(
+            model=GROQ_MODEL,
+            messages=messages,
+            max_tokens=800,
+            temperature=0.6,
+        )
+        return completion.choices[0].message.content.strip()
+
+    except Exception as e:
+        return (
+            f"I'm sorry, I couldn't process your request right now "
+            f"(error: {e}).\n\nPlease try again in a moment. "
+            "For urgent health concerns, please contact a healthcare provider directly."
+        )

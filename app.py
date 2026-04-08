@@ -4,6 +4,7 @@ Routes:
   GET  /         → Serve the main UI
   POST /analyze  → Run ML prediction + Groq AI suggestions
   GET  /symptoms → Return list of all known symptoms
+  POST /chat     → Health chatbot (context-aware conversation)
 """
 
 import os
@@ -19,7 +20,7 @@ load_dotenv()
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from model.predict import predict_disease
-from groq_client import get_health_suggestions, get_provider_info
+from groq_client import get_health_suggestions, get_chat_response, get_provider_info
 
 # Configure logging
 logging.basicConfig(
@@ -29,6 +30,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+# Allow cross-origin requests from the Next.js frontend (port 3000)
+def _add_cors(response):
+    response.headers["Access-Control-Allow-Origin"]  = "http://localhost:3000"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    return response
+
+app.after_request(_add_cors)
 
 # Load symptom list dynamically from the real Symptom-severity.csv
 def _load_all_symptoms() -> list[str]:
@@ -176,6 +186,46 @@ def analyze():
     except Exception as e:
         logger.error(f"Error in /analyze: {e}", exc_info=True)
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+
+
+@app.route("/chat", methods=["POST", "OPTIONS"])
+def chat():
+    """
+    Health chatbot endpoint.
+
+    Expected JSON body:
+        {
+            "message": "I have a headache...",
+            "profile": { ...user health profile... },  (optional)
+            "history": [{"role": "user"|"assistant", "content": "..."}]  (optional)
+        }
+    Returns JSON:
+        { "response": str }
+    """
+    if request.method == "OPTIONS":
+        return jsonify({}), 200
+
+    try:
+        data = request.get_json(force=True) or {}
+        message = data.get("message", "").strip()
+        profile = data.get("profile", {})
+        history = data.get("history", [])
+
+        if not message:
+            return jsonify({"error": "No message provided."}), 400
+
+        logger.info(f"Chat: '{message[:80]}...' | profile={bool(profile)}")
+
+        response_text = get_chat_response(
+            message=message,
+            profile=profile,
+            history=history,
+        )
+        return jsonify({"response": response_text})
+
+    except Exception as e:
+        logger.error(f"Error in /chat: {e}", exc_info=True)
+        return jsonify({"error": f"Chat error: {str(e)}"}), 500
 
 
 if __name__ == "__main__":

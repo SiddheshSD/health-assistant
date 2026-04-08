@@ -2,18 +2,16 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { updateProfile } from "@/app/actions/auth";
-import { createClient } from "@/lib/supabase/client";
 import {
   Heart,
   ArrowRight,
   ArrowLeft,
   Loader2,
   Check,
-  Cloud,
+  HardDrive,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 
 import { StepHealthProfile } from "@/components/register/step-health-profile";
 import { StepBodyMetrics } from "@/components/register/step-body-metrics";
@@ -21,193 +19,90 @@ import { StepLifestyle } from "@/components/register/step-lifestyle";
 import { StepMedicalBackground } from "@/components/register/step-medical-background";
 
 export interface ProfileFormData {
-  // Step 1: Health Profile
   age?: number;
   gender?: string;
-  // Step 2: Body Metrics
   height_cm?: number;
   weight_kg?: number;
   bmi?: number;
   bmi_category?: string;
-  // Step 3: Lifestyle
   smoking?: string;
   alcohol?: string;
   physical_activity?: string;
   sleep_duration?: string;
   diet_type?: string;
   stress_level?: string;
-  // Step 4: Medical Background
   existing_diseases?: string[];
   allergies?: string;
 }
 
-const STEPS = [
-  {
-    id: 1,
-    title: "Basic Health Profile",
-    subtitle: "Age and gender for accurate predictions",
-    emoji: "👤",
-  },
-  {
-    id: 2,
-    title: "Body Metrics",
-    subtitle: "Height, weight & BMI calculation",
-    emoji: "⚖️",
-  },
-  {
-    id: 3,
-    title: "Lifestyle Habits",
-    subtitle: "Daily habits that affect your health",
-    emoji: "🌿",
-  },
-  {
-    id: 4,
-    title: "Medical Background",
-    subtitle: "Existing conditions and allergies",
-    emoji: "🏥",
-  },
-];
+const LS_KEY = "healthai_profile";
+const LS_STEP_KEY = "healthai_profile_step";
 
-// Map step number → fields saved at that step
-const STEP_FIELDS: Record<number, (keyof ProfileFormData)[]> = {
-  1: ["age", "gender"],
-  2: ["height_cm", "weight_kg", "bmi", "bmi_category"],
-  3: ["smoking", "alcohol", "physical_activity", "sleep_duration", "diet_type", "stress_level"],
-  4: ["existing_diseases", "allergies"],
-};
+const STEPS = [
+  { id: 1, title: "Basic Health Profile", subtitle: "Age and gender for accurate predictions", emoji: "👤" },
+  { id: 2, title: "Body Metrics", subtitle: "Height, weight & BMI calculation", emoji: "⚖️" },
+  { id: 3, title: "Lifestyle Habits", subtitle: "Daily habits that affect your health", emoji: "🌿" },
+  { id: 4, title: "Medical Background", subtitle: "Existing conditions and allergies", emoji: "🏥" },
+];
 
 export default function ProfileSetupPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ProfileFormData>({});
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saved" | "error">("idle");
-  const [error, setError] = useState<string | null>(null);
+  const [savedFlash, setSavedFlash] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // ── Pre-load existing Supabase data on mount ─────────────────────────────
+  // ── Load from localStorage on mount ──────────────────────────────────────
   useEffect(() => {
-    async function loadExistingProfile() {
-      try {
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { router.push("/login"); return; }
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) setFormData(JSON.parse(raw));
 
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("age, gender, height_cm, weight_kg, bmi, bmi_category, smoking, alcohol, physical_activity, sleep_duration, diet_type, stress_level, existing_diseases, allergies, onboarding_step")
-          .eq("id", user.id)
-          .single();
-
-        if (profile) {
-          // Restore previously saved data
-          setFormData({
-            age: profile.age ?? undefined,
-            gender: profile.gender ?? undefined,
-            height_cm: profile.height_cm ?? undefined,
-            weight_kg: profile.weight_kg ?? undefined,
-            bmi: profile.bmi ?? undefined,
-            bmi_category: profile.bmi_category ?? undefined,
-            smoking: profile.smoking ?? undefined,
-            alcohol: profile.alcohol ?? undefined,
-            physical_activity: profile.physical_activity ?? undefined,
-            sleep_duration: profile.sleep_duration ?? undefined,
-            diet_type: profile.diet_type ?? undefined,
-            stress_level: profile.stress_level ?? undefined,
-            existing_diseases: profile.existing_diseases ?? undefined,
-            allergies: profile.allergies ?? undefined,
-          });
-          // Resume from where they left off
-          if (profile.onboarding_step && profile.onboarding_step > 1 && profile.onboarding_step <= STEPS.length) {
-            setCurrentStep(profile.onboarding_step);
-          }
-        }
-      } catch (e) {
-        console.warn("Could not load existing profile:", e);
-      } finally {
-        setIsLoading(false);
-      }
+      const savedStep = parseInt(localStorage.getItem(LS_STEP_KEY) || "1");
+      if (savedStep >= 1 && savedStep <= STEPS.length) setCurrentStep(savedStep);
+    } catch {
+      // ignore
+    } finally {
+      setIsLoading(false);
     }
-    loadExistingProfile();
-  }, [router]);
+  }, []);
 
   const updateFormData = useCallback((data: Partial<ProfileFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
   }, []);
 
-  // ── Save current step's fields to Supabase ───────────────────────────────
-  async function saveStepToSupabase(step: number, data: ProfileFormData) {
-    setIsSaving(true);
-    setSaveStatus("idle");
-
-    // Pick only the fields for this step
-    const fields = STEP_FIELDS[step] ?? [];
-    const payload: Record<string, unknown> = { onboarding_step: step + 1 };
-    for (const field of fields) {
-      if (data[field] !== undefined) {
-        payload[field] = data[field];
-      }
-    }
-
-    const result = await updateProfile(payload);
-    setIsSaving(false);
-
-    if (result?.error) {
-      setSaveStatus("error");
-      setError(result.error);
-      return false;
-    }
-
-    setSaveStatus("saved");
-    setTimeout(() => setSaveStatus("idle"), 2000);
-    return true;
+  // ── Save current data snapshot to localStorage ────────────────────────────
+  function saveToLocal(data: ProfileFormData, step: number) {
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    localStorage.setItem(LS_STEP_KEY, String(step));
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1500);
   }
 
-  const handleNext = async () => {
-    setError(null);
-    const ok = await saveStepToSupabase(currentStep, formData);
-    if (ok) setCurrentStep((prev) => prev + 1);
+  const handleNext = () => {
+    saveToLocal(formData, currentStep + 1);
+    setCurrentStep((p) => p + 1);
   };
 
   const handlePrev = () => {
-    setError(null);
-    setCurrentStep((prev) => prev - 1);
+    setCurrentStep((p) => p - 1);
   };
 
-  const handleFinish = async () => {
-    setError(null);
-    setIsSaving(true);
-
-    // Save final step + mark profile complete
-    const fields = STEP_FIELDS[currentStep] ?? [];
-    const payload: Record<string, unknown> = {
-      onboarding_step: STEPS.length + 1,
-      profile_completed: true,
-    };
-    for (const field of fields) {
-      if (formData[field] !== undefined) {
-        payload[field] = formData[field];
-      }
-    }
-
-    const result = await updateProfile(payload);
-    setIsSaving(false);
-
-    if (result?.error) {
-      setError(result.error);
-      return;
-    }
-
+  const handleFinish = () => {
+    // Save complete profile + mark as done
+    localStorage.setItem(LS_KEY, JSON.stringify(formData));
+    localStorage.setItem("healthai_profile_complete", "true");
+    localStorage.removeItem(LS_STEP_KEY);
     router.push("/dashboard");
   };
 
   const renderStep = () => {
-    const stepProps = { formData, updateFormData };
+    const props = { formData, updateFormData };
     switch (currentStep) {
-      case 1: return <StepHealthProfile {...stepProps} />;
-      case 2: return <StepBodyMetrics   {...stepProps} />;
-      case 3: return <StepLifestyle     {...stepProps} />;
-      case 4: return <StepMedicalBackground {...stepProps} />;
+      case 1: return <StepHealthProfile {...props} />;
+      case 2: return <StepBodyMetrics   {...props} />;
+      case 3: return <StepLifestyle     {...props} />;
+      case 4: return <StepMedicalBackground {...props} />;
       default: return null;
     }
   };
@@ -215,10 +110,7 @@ export default function ProfileSetupPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-teal-50/30">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-teal-200 border-t-teal-600" />
-          <p className="text-sm text-muted-foreground">Loading your profile…</p>
-        </div>
+        <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
       </div>
     );
   }
@@ -228,7 +120,7 @@ export default function ProfileSetupPage() {
 
   return (
     <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-teal-50/30">
-      {/* Decorative blobs */}
+      {/* Decorative */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-teal-200/20 blur-3xl" />
         <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-emerald-200/15 blur-3xl" />
@@ -246,16 +138,11 @@ export default function ProfileSetupPage() {
             </span>
           </div>
 
-          {/* Auto-save indicator */}
-          <div className="flex items-center gap-2">
-            {isSaving && (
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Loader2 className="h-3 w-3 animate-spin" /> Saving…
-              </span>
-            )}
-            {saveStatus === "saved" && (
-              <span className="flex items-center gap-1.5 text-xs text-teal-600">
-                <Cloud className="h-3 w-3" /> Saved to Supabase
+          <div className="flex items-center gap-3">
+            {/* Save indicator */}
+            {savedFlash && (
+              <span className="flex items-center gap-1.5 text-xs text-teal-600 animate-fade-up">
+                <HardDrive className="h-3 w-3" /> Saved locally
               </span>
             )}
             <span className="text-sm text-muted-foreground">
@@ -265,10 +152,11 @@ export default function ProfileSetupPage() {
         </div>
       </div>
 
-      {/* Progress */}
+      {/* Progress bar */}
       <div className="relative z-10 mx-auto w-full max-w-3xl px-6 pt-8">
         <Progress value={progress} className="h-2 rounded-full bg-teal-100/50" />
 
+        {/* Step dots */}
         <div className="mt-4 flex justify-between">
           {STEPS.map((s) => (
             <button
@@ -300,7 +188,7 @@ export default function ProfileSetupPage() {
       {/* Content */}
       <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col px-6 py-8">
         {/* Step header */}
-        <div className="mb-8 animate-fade-up" style={{ animationFillMode: "forwards" }}>
+        <div className="mb-8" style={{ animation: "fadeUp 0.3s ease both" }}>
           <div className="mb-2 flex items-center gap-3">
             <span className="text-3xl">{step.emoji}</span>
             <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -308,26 +196,10 @@ export default function ProfileSetupPage() {
             </h1>
           </div>
           <p className="text-sm text-muted-foreground">{step.subtitle}</p>
-          {currentStep > 1 && (
-            <p className="mt-1 text-xs text-teal-600">
-              ✨ Your data is automatically saved to Supabase as you go
-            </p>
-          )}
         </div>
 
-        {/* Error */}
-        {error && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
-
         {/* Step content */}
-        <div
-          key={currentStep}
-          className="flex-1 animate-fade-up"
-          style={{ animationFillMode: "forwards" }}
-        >
+        <div key={currentStep} className="flex-1">
           {renderStep()}
         </div>
 
@@ -336,7 +208,7 @@ export default function ProfileSetupPage() {
           <Button
             variant="ghost"
             onClick={handlePrev}
-            disabled={currentStep === 1 || isSaving}
+            disabled={currentStep === 1}
             className="gap-2 rounded-xl text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -346,26 +218,18 @@ export default function ProfileSetupPage() {
           {currentStep < STEPS.length ? (
             <Button
               onClick={handleNext}
-              disabled={isSaving}
               className="group gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-teal-500 px-6 text-sm font-semibold text-white shadow-lg shadow-teal-500/20 transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/30 hover:brightness-105"
             >
-              {isSaving ? (
-                <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</>
-              ) : (
-                <>Next <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" /></>
-              )}
+              Next
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
             </Button>
           ) : (
             <Button
               onClick={handleFinish}
-              disabled={isSaving}
               className="group gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 px-6 text-sm font-semibold text-white shadow-lg shadow-teal-500/20 transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/30 hover:brightness-105"
             >
-              {isSaving ? (
-                <><Loader2 className="h-4 w-4 animate-spin" /> Saving to Supabase…</>
-              ) : (
-                <><Check className="h-4 w-4" /> Finish Setup</>
-              )}
+              <Check className="h-4 w-4" />
+              Finish Setup
             </Button>
           )}
         </div>
