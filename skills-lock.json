@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "backend-development": {
+      "source": "mrgoonie/claudekit-skills",
+      "sourceType": "github",
+      "computedHash": "dedbc6bb7afa2c16ac6b3451a435a198af0e5d3786b30a15d40910ba207fd6e3"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "516bd2154eb843a8240e43d5b285229129853114ad7075a5e141e1c08e408c84"
+    },
+    "frontend-design-pro": {
+      "source": "binjuhor/shadcn-lar",
+      "sourceType": "github",
+      "computedHash": "ac0ee19a6c01837e02fe4d79464acc59dd0fe203f9b27608d87617f865c1d814"
+    },
+    "senior-backend": {
+      "source": "davila7/claude-code-templates",
+      "sourceType": "github",
+      "computedHash": "c15972382ed35ec141f419c3caec031156721d85b26c29fd22cd4cf9991acd7b"
+    }
+  }
+}
