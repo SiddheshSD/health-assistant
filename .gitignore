@@ -44,3 +44,4 @@ logs/
 
 # Test scripts
 test_mapping.py
+node_modules
