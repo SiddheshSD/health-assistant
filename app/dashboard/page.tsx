@@ -6,6 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { signOut } from "@/app/actions/auth";
 
 export default async function DashboardPage() {
+  // Helper: resolve display name with fallback chain
+  const displayName = (fullName: string | null | undefined, metaName: unknown) =>
+    fullName || (typeof metaName === "string" ? metaName : "") || "User";
   const supabase = await createClient();
   const {
     data: { user },
@@ -42,7 +45,7 @@ export default async function DashboardPage() {
                 <User className="h-4 w-4 text-teal-700" />
               </div>
               <span className="hidden text-sm font-medium sm:inline">
-                {profile?.full_name || user.email}
+                {displayName(profile?.full_name, user.user_metadata?.full_name)}
               </span>
             </div>
             <form action={signOut}>
@@ -64,7 +67,7 @@ export default async function DashboardPage() {
       <main className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
         <div className="mb-8">
           <h1 className="font-heading text-3xl font-bold text-foreground">
-            Welcome back, {profile?.full_name?.split(" ")[0] || "there"}! 👋
+            Welcome back, {displayName(profile?.full_name, user.user_metadata?.full_name).split(" ")[0]}! 👋
           </h1>
           <p className="mt-2 text-muted-foreground">
             Your personal health dashboard

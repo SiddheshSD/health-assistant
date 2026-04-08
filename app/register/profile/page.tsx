@@ -1,11 +1,19 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { updateProfile } from "@/app/actions/auth";
-import { Heart, ArrowRight, ArrowLeft, Loader2, SkipForward, Check } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import {
+  Heart,
+  ArrowRight,
+  ArrowLeft,
+  Loader2,
+  Check,
+  Cloud,
+} from "lucide-react";
 
 import { StepHealthProfile } from "@/components/register/step-health-profile";
 import { StepBodyMetrics } from "@/components/register/step-body-metrics";
@@ -22,8 +30,8 @@ export interface ProfileFormData {
   bmi?: number;
   bmi_category?: string;
   // Step 3: Lifestyle
-  smoking_habit?: string;
-  alcohol_consumption?: string;
+  smoking?: string;
+  alcohol?: string;
   physical_activity?: string;
   sleep_duration?: string;
   diet_type?: string;
@@ -34,83 +42,193 @@ export interface ProfileFormData {
 }
 
 const STEPS = [
-  { id: 1, title: "Health Profile", subtitle: "Basic health information" },
-  { id: 2, title: "Body Metrics", subtitle: "Height, weight & BMI" },
-  { id: 3, title: "Lifestyle", subtitle: "Daily habits & routines" },
-  { id: 4, title: "Medical Background", subtitle: "Conditions & allergies" },
+  {
+    id: 1,
+    title: "Basic Health Profile",
+    subtitle: "Age and gender for accurate predictions",
+    emoji: "👤",
+  },
+  {
+    id: 2,
+    title: "Body Metrics",
+    subtitle: "Height, weight & BMI calculation",
+    emoji: "⚖️",
+  },
+  {
+    id: 3,
+    title: "Lifestyle Habits",
+    subtitle: "Daily habits that affect your health",
+    emoji: "🌿",
+  },
+  {
+    id: 4,
+    title: "Medical Background",
+    subtitle: "Existing conditions and allergies",
+    emoji: "🏥",
+  },
 ];
+
+// Map step number → fields saved at that step
+const STEP_FIELDS: Record<number, (keyof ProfileFormData)[]> = {
+  1: ["age", "gender"],
+  2: ["height_cm", "weight_kg", "bmi", "bmi_category"],
+  3: ["smoking", "alcohol", "physical_activity", "sleep_duration", "diet_type", "stress_level"],
+  4: ["existing_diseases", "allergies"],
+};
 
 export default function ProfileSetupPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ProfileFormData>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saved" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  const totalSteps = STEPS.length;
-  const progress = (currentStep / totalSteps) * 100;
+  // ── Pre-load existing Supabase data on mount ─────────────────────────────
+  useEffect(() => {
+    async function loadExistingProfile() {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { router.push("/login"); return; }
+
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("age, gender, height_cm, weight_kg, bmi, bmi_category, smoking, alcohol, physical_activity, sleep_duration, diet_type, stress_level, existing_diseases, allergies, onboarding_step")
+          .eq("id", user.id)
+          .single();
+
+        if (profile) {
+          // Restore previously saved data
+          setFormData({
+            age: profile.age ?? undefined,
+            gender: profile.gender ?? undefined,
+            height_cm: profile.height_cm ?? undefined,
+            weight_kg: profile.weight_kg ?? undefined,
+            bmi: profile.bmi ?? undefined,
+            bmi_category: profile.bmi_category ?? undefined,
+            smoking: profile.smoking ?? undefined,
+            alcohol: profile.alcohol ?? undefined,
+            physical_activity: profile.physical_activity ?? undefined,
+            sleep_duration: profile.sleep_duration ?? undefined,
+            diet_type: profile.diet_type ?? undefined,
+            stress_level: profile.stress_level ?? undefined,
+            existing_diseases: profile.existing_diseases ?? undefined,
+            allergies: profile.allergies ?? undefined,
+          });
+          // Resume from where they left off
+          if (profile.onboarding_step && profile.onboarding_step > 1 && profile.onboarding_step <= STEPS.length) {
+            setCurrentStep(profile.onboarding_step);
+          }
+        }
+      } catch (e) {
+        console.warn("Could not load existing profile:", e);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadExistingProfile();
+  }, [router]);
 
   const updateFormData = useCallback((data: Partial<ProfileFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
   }, []);
 
-  const handleNext = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep((prev) => prev + 1);
+  // ── Save current step's fields to Supabase ───────────────────────────────
+  async function saveStepToSupabase(step: number, data: ProfileFormData) {
+    setIsSaving(true);
+    setSaveStatus("idle");
+
+    // Pick only the fields for this step
+    const fields = STEP_FIELDS[step] ?? [];
+    const payload: Record<string, unknown> = { onboarding_step: step + 1 };
+    for (const field of fields) {
+      if (data[field] !== undefined) {
+        payload[field] = data[field];
+      }
     }
+
+    const result = await updateProfile(payload);
+    setIsSaving(false);
+
+    if (result?.error) {
+      setSaveStatus("error");
+      setError(result.error);
+      return false;
+    }
+
+    setSaveStatus("saved");
+    setTimeout(() => setSaveStatus("idle"), 2000);
+    return true;
+  }
+
+  const handleNext = async () => {
+    setError(null);
+    const ok = await saveStepToSupabase(currentStep, formData);
+    if (ok) setCurrentStep((prev) => prev + 1);
   };
 
   const handlePrev = () => {
-    if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  };
-
-  const handleSkip = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep((prev) => prev + 1);
-    } else {
-      handleFinish();
-    }
+    setError(null);
+    setCurrentStep((prev) => prev - 1);
   };
 
   const handleFinish = async () => {
-    setIsSubmitting(true);
     setError(null);
+    setIsSaving(true);
 
-    const result = await updateProfile({
-      ...formData,
+    // Save final step + mark profile complete
+    const fields = STEP_FIELDS[currentStep] ?? [];
+    const payload: Record<string, unknown> = {
+      onboarding_step: STEPS.length + 1,
       profile_completed: true,
-      onboarding_step: totalSteps + 1,
-    });
+    };
+    for (const field of fields) {
+      if (formData[field] !== undefined) {
+        payload[field] = formData[field];
+      }
+    }
+
+    const result = await updateProfile(payload);
+    setIsSaving(false);
 
     if (result?.error) {
       setError(result.error);
-      setIsSubmitting(false);
-    } else {
-      router.push("/dashboard");
+      return;
     }
+
+    router.push("/dashboard");
   };
 
   const renderStep = () => {
     const stepProps = { formData, updateFormData };
     switch (currentStep) {
-      case 1:
-        return <StepHealthProfile {...stepProps} />;
-      case 2:
-        return <StepBodyMetrics {...stepProps} />;
-      case 3:
-        return <StepLifestyle {...stepProps} />;
-      case 4:
-        return <StepMedicalBackground {...stepProps} />;
-      default:
-        return null;
+      case 1: return <StepHealthProfile {...stepProps} />;
+      case 2: return <StepBodyMetrics   {...stepProps} />;
+      case 3: return <StepLifestyle     {...stepProps} />;
+      case 4: return <StepMedicalBackground {...stepProps} />;
+      default: return null;
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-white to-teal-50/30">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-teal-200 border-t-teal-600" />
+          <p className="text-sm text-muted-foreground">Loading your profile…</p>
+        </div>
+      </div>
+    );
+  }
+
+  const progress = (currentStep / STEPS.length) * 100;
+  const step = STEPS[currentStep - 1];
+
   return (
     <div className="relative flex min-h-screen flex-col bg-gradient-to-br from-slate-50 via-white to-teal-50/30">
-      {/* Decorative */}
+      {/* Decorative blobs */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-teal-200/20 blur-3xl" />
         <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-emerald-200/15 blur-3xl" />
@@ -127,69 +245,74 @@ export default function ProfileSetupPage() {
               Health<span className="text-teal-600">AI</span>
             </span>
           </div>
-          <span className="text-sm text-muted-foreground">
-            Step {currentStep} of {totalSteps}
-          </span>
+
+          {/* Auto-save indicator */}
+          <div className="flex items-center gap-2">
+            {isSaving && (
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" /> Saving…
+              </span>
+            )}
+            {saveStatus === "saved" && (
+              <span className="flex items-center gap-1.5 text-xs text-teal-600">
+                <Cloud className="h-3 w-3" /> Saved to Supabase
+              </span>
+            )}
+            <span className="text-sm text-muted-foreground">
+              Step {currentStep} of {STEPS.length}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Progress bar */}
+      {/* Progress */}
       <div className="relative z-10 mx-auto w-full max-w-3xl px-6 pt-8">
-        <Progress
-          value={progress}
-          className="h-2 rounded-full bg-teal-100/50"
-        />
+        <Progress value={progress} className="h-2 rounded-full bg-teal-100/50" />
 
-        {/* Step indicators */}
         <div className="mt-4 flex justify-between">
-          {STEPS.map((step) => (
+          {STEPS.map((s) => (
             <button
-              key={step.id}
-              onClick={() => step.id < currentStep && setCurrentStep(step.id)}
-              className={`flex items-center gap-2 text-xs font-medium transition-all duration-300 ${
-                step.id === currentStep
+              key={s.id}
+              onClick={() => s.id < currentStep && setCurrentStep(s.id)}
+              className={`flex items-center gap-2 text-xs font-medium transition-all duration-300 ${s.id === currentStep
                   ? "text-teal-700"
-                  : step.id < currentStep
-                  ? "text-teal-500 cursor-pointer hover:text-teal-600"
-                  : "text-muted-foreground/50"
-              }`}
+                  : s.id < currentStep
+                    ? "cursor-pointer text-teal-500 hover:text-teal-600"
+                    : "text-muted-foreground/50"
+                }`}
             >
               <div
-                className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300 ${
-                  step.id === currentStep
+                className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300 ${s.id === currentStep
                     ? "bg-teal-600 text-white shadow-md shadow-teal-500/30"
-                    : step.id < currentStep
-                    ? "bg-teal-100 text-teal-700"
-                    : "bg-muted text-muted-foreground"
-                }`}
+                    : s.id < currentStep
+                      ? "bg-teal-100 text-teal-700"
+                      : "bg-muted text-muted-foreground"
+                  }`}
               >
-                {step.id < currentStep ? (
-                  <Check className="h-3 w-3" />
-                ) : (
-                  step.id
-                )}
+                {s.id < currentStep ? <Check className="h-3 w-3" /> : s.id}
               </div>
-              <span className="hidden sm:inline">{step.title}</span>
+              <span className="hidden sm:inline">{s.title}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Content area */}
+      {/* Content */}
       <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col px-6 py-8">
         {/* Step header */}
         <div className="mb-8 animate-fade-up" style={{ animationFillMode: "forwards" }}>
-          <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            {STEPS[currentStep - 1].title}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {STEPS[currentStep - 1].subtitle}
-            {currentStep > 1 && (
-              <span className="ml-2 text-xs text-teal-600">
-                (Optional — you can skip this)
-              </span>
-            )}
-          </p>
+          <div className="mb-2 flex items-center gap-3">
+            <span className="text-3xl">{step.emoji}</span>
+            <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              {step.title}
+            </h1>
+          </div>
+          <p className="text-sm text-muted-foreground">{step.subtitle}</p>
+          {currentStep > 1 && (
+            <p className="mt-1 text-xs text-teal-600">
+              ✨ Your data is automatically saved to Supabase as you go
+            </p>
+          )}
         </div>
 
         {/* Error */}
@@ -208,55 +331,43 @@ export default function ProfileSetupPage() {
           {renderStep()}
         </div>
 
-        {/* Navigation buttons */}
+        {/* Nav buttons */}
         <div className="mt-8 flex items-center justify-between border-t border-border/50 pt-6">
           <Button
             variant="ghost"
             onClick={handlePrev}
-            disabled={currentStep === 1}
+            disabled={currentStep === 1 || isSaving}
             className="gap-2 rounded-xl text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
 
-          <div className="flex items-center gap-3">
-            {currentStep > 1 && (
-              <Button
-                variant="ghost"
-                onClick={handleSkip}
-                className="gap-1.5 rounded-xl text-sm text-muted-foreground hover:text-foreground"
-              >
-                <SkipForward className="h-3.5 w-3.5" />
-                Skip
-              </Button>
-            )}
-
-            {currentStep < totalSteps ? (
-              <Button
-                onClick={handleNext}
-                className="group gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-teal-500 px-6 text-sm font-semibold text-white shadow-lg shadow-teal-500/20 transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/30 hover:brightness-105"
-              >
-                Next
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-              </Button>
-            ) : (
-              <Button
-                onClick={handleFinish}
-                disabled={isSubmitting}
-                className="group gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 px-6 text-sm font-semibold text-white shadow-lg shadow-teal-500/20 transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/30 hover:brightness-105"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    Finish Setup
-                    <Check className="h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
+          {currentStep < STEPS.length ? (
+            <Button
+              onClick={handleNext}
+              disabled={isSaving}
+              className="group gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-teal-500 px-6 text-sm font-semibold text-white shadow-lg shadow-teal-500/20 transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/30 hover:brightness-105"
+            >
+              {isSaving ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</>
+              ) : (
+                <>Next <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" /></>
+              )}
+            </Button>
+          ) : (
+            <Button
+              onClick={handleFinish}
+              disabled={isSaving}
+              className="group gap-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 px-6 text-sm font-semibold text-white shadow-lg shadow-teal-500/20 transition-all duration-300 hover:shadow-xl hover:shadow-teal-500/30 hover:brightness-105"
+            >
+              {isSaving ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> Saving to Supabase…</>
+              ) : (
+                <><Check className="h-4 w-4" /> Finish Setup</>
+              )}
+            </Button>
+          )}
         </div>
       </div>
     </div>
