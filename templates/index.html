@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Health Assistant — Symptom Checker</title>
+  <meta name="description" content="AI-powered health assistant that analyzes your symptoms, predicts possible conditions, and provides personalized health suggestions using advanced machine learning and LLaMA AI." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <!-- Background Orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2C7.373 2 2 7.373 2 14s5.373 12 12 12 12-5.373 12-12S20.627 2 14 2z" fill="url(#logoGrad)"/>
+            <path d="M14 8v12M8 14h12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="logoGrad" x1="2" y1="2" x2="26" y2="26" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-text">HealthAI</span>
+      </div>
+      <nav class="header-nav">
+        <span class="badge-beta">Beta</span>
+        <span class="nav-disclaimer">For informational use only</span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main" role="main">
+
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title" class="hero-title">
+        AI-Powered <span class="gradient-text">Symptom Analysis</span>
+      </h1>
+      <p class="hero-subtitle">
+        Describe your symptoms and get instant insights powered by machine learning and LLaMA 3.3 AI. Always consult a doctor for medical advice.
+      </p>
+      <div class="hero-badges" aria-label="Technology stack">
+        <span class="tech-badge">🤖 LLaMA 3.3 70B</span>
+        <span class="tech-badge">🧬 Random Forest ML</span>
+        <span class="tech-badge">41 Conditions</span>
+        <span class="tech-badge">131 Symptoms</span>
+      </div>
+    </section>
+
+    <!-- Input Card -->
+    <section class="card input-card" aria-labelledby="form-title">
+      <h2 id="form-title" class="card-title">
+        <span class="card-title-icon" aria-hidden="true">🔍</span>
+        Enter Your Symptoms
+      </h2>
+
+      <form id="health-form" novalidate aria-label="Symptom analysis form">
+
+        <!-- Symptom Search -->
+        <div class="form-group">
+          <label class="form-label" for="symptom-search">
+            Symptoms <span class="required" aria-label="required">*</span>
+          </label>
+          <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M15 15l-3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input
+              type="text"
+              id="symptom-search"
+              class="input-field search-input"
+              placeholder="Search known symptoms or type any symptom + press Enter"
+              autocomplete="off"
+              aria-autocomplete="list"
+              aria-controls="suggestions-list"
+              aria-expanded="false"
+            />
+            <button type="button" id="add-custom-btn" class="add-custom-btn" title="Add typed symptom">
+              + Add
+            </button>
+          </div>
+          <p class="search-hint">Press <kbd>Enter</kbd> or click <strong>+ Add</strong> to add any symptom — even if not in the list.</p>
+
+          <!-- Autocomplete Dropdown -->
+          <ul id="suggestions-list" class="suggestions-dropdown" role="listbox" aria-label="Symptom suggestions" hidden></ul>
+
+          <!-- Selected symptoms tags -->
+          <div id="selected-symptoms" class="selected-tags" role="list" aria-label="Selected symptoms" aria-live="polite">
+            <span class="tags-placeholder" id="tags-placeholder">No symptoms selected yet. Use search above or type any symptom and press Enter.</span>
+          </div>
+
+          <!-- Quick-add common symptoms -->
+          <div class="quick-symptoms" aria-label="Quick add common symptoms">
+            <span class="quick-label">Quick add:</span>
+            <div class="quick-buttons" id="quick-buttons">
+              <button type="button" class="quick-btn" data-symptom="headache">Headache</button>
+              <button type="button" class="quick-btn" data-symptom="high_fever">Fever</button>
+              <button type="button" class="quick-btn" data-symptom="nausea">Nausea</button>
+              <button type="button" class="quick-btn" data-symptom="fatigue">Fatigue</button>
+              <button type="button" class="quick-btn" data-symptom="cough">Cough</button>
+              <button type="button" class="quick-btn" data-symptom="vomiting">Vomiting</button>
+              <button type="button" class="quick-btn" data-symptom="dizziness">Dizziness</button>
+              <button type="button" class="quick-btn" data-symptom="joint_pain">Joint Pain</button>
+              <button type="button" class="quick-btn" data-symptom="chest_pain">Chest Pain</button>
+              <button type="button" class="quick-btn" data-symptom="breathlessness">Breathlessness</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Age & Gender row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="age-input">Age (optional)</label>
+            <input
+              type="number"
+              id="age-input"
+              class="input-field"
+              placeholder="e.g. 28"
+              min="1"
+              max="120"
+              aria-describedby="age-hint"
+            />
+            <span id="age-hint" class="field-hint">Enter your age in years</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="gender-select">Gender (optional)</label>
+            <div class="select-wrapper">
+              <select id="gender-select" class="input-field select-field" aria-describedby="gender-hint">
+                <option value="">Prefer not to say</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+              <svg class="select-arrow" viewBox="0 0 12 8" fill="none" aria-hidden="true">
+                <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span id="gender-hint" class="field-hint">Helps personalize suggestions</span>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="analyze-btn" class="btn-primary" aria-describedby="submit-hint">
+          <span class="btn-text">Analyze My Symptoms</span>
+          <span class="btn-icon" aria-hidden="true">⚡</span>
+        </button>
+        <p id="submit-hint" class="submit-hint">
+          Results are AI-generated and not a medical diagnosis
+        </p>
+
+        <!-- Error message -->
+        <div id="error-msg" class="error-banner" role="alert" aria-live="assertive" hidden>
+          <span class="error-icon" aria-hidden="true">⚠️</span>
+          <span id="error-text"></span>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="loading-panel" role="status" aria-label="Analyzing symptoms" hidden>
+      <div class="loading-inner">
+        <div class="pulse-ring" aria-hidden="true">
+          <div class="pulse-dot"></div>
+        </div>
+        <h3 class="loading-title">Analyzing your symptoms…</h3>
+        <div class="loading-steps" aria-live="polite">
+          <div class="step" id="step-1">
+            <span class="step-icon step-active" aria-hidden="true">🧬</span>
+            <span>Running ML prediction model</span>
+          </div>
+          <div class="step" id="step-2">
+            <span class="step-icon" aria-hidden="true">🤖</span>
+            <span>Consulting LLaMA 3.3 AI</span>
+          </div>
+          <div class="step" id="step-3">
+            <span class="step-icon" aria-hidden="true">📋</span>
+            <span>Generating health suggestions</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Section -->
+    <section id="results-section" class="results-wrapper" aria-label="Analysis results" hidden>
+
+      <!-- Prediction Card -->
+      <div class="card result-card prediction-card">
+        <div class="prediction-header">
+          <div>
+            <h2 class="result-section-title">🔬 Condition Detected</h2>
+            <div id="disease-name" class="disease-name" role="heading" aria-level="3"></div>
+          </div>
+          <div class="confidence-circle-wrapper" aria-label="Confidence score">
+            <svg class="confidence-circle" viewBox="0 0 80 80" aria-hidden="true">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6"/>
+              <circle id="conf-arc" cx="40" cy="40" r="34" fill="none" stroke="url(#confGrad)"
+                      stroke-width="6" stroke-linecap="round" stroke-dasharray="213.6"
+                      stroke-dashoffset="213.6" transform="rotate(-90 40 40)"/>
+              <defs>
+                <linearGradient id="confGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#6366f1"/>
+                  <stop offset="100%" stop-color="#06b6d4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="confidence-label-inner">
+              <span id="confidence-pct" class="confidence-pct"></span>
+              <span class="confidence-sublabel">confidence</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Confidence Bar -->
+        <div class="confidence-bar-section">
+          <div class="confidence-bar-header">
+            <span>Model Confidence</span>
+            <span id="conf-label" class="conf-label-text"></span>
+          </div>
+          <div class="confidence-bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Confidence level">
+            <div id="confidence-bar" class="confidence-bar-fill"></div>
+          </div>
+        </div>
+
+        <!-- Matched Symptoms -->
+        <div id="matched-symptoms-section" class="matched-section" hidden>
+          <p class="matched-label"><span class="label-dot dot-green"></span>Exactly Matched (from dataset):</p>
+          <div id="matched-tags" class="matched-tags" role="list" aria-label="Matched symptoms"></div>
+        </div>
+
+        <!-- Auto-Mapped Symptoms -->
+        <div id="mapped-symptoms-section" class="mapped-section" hidden>
+          <p class="matched-label"><span class="label-dot dot-blue"></span>Auto-Mapped &amp; Used in Prediction:</p>
+          <div id="mapped-tags" class="mapped-tags" role="list" aria-label="Auto-mapped symptoms"></div>
+          <p class="mapped-hint">These free-typed symptoms were intelligently mapped to the nearest known symptom and <strong>included in the ML prediction</strong>.</p>
+        </div>
+
+        <!-- Unknown Symptoms Warning -->
+        <div id="unknown-symptoms-section" class="unknown-section" role="alert" hidden>
+          <div class="unknown-header">
+            <span class="unknown-icon" aria-hidden="true">⚠️</span>
+            <p class="matched-label"><span class="label-dot dot-orange"></span>Could Not Map (LLM context only):</p>
+          </div>
+          <div id="unknown-tags" class="unknown-tags" role="list" aria-label="Unknown symptoms"></div>
+          <p class="unknown-hint">No close match found in dataset. The AI still considers these symptoms in its suggestions.</p>
+        </div>
+
+        <!-- Top Predictions -->
+        <div id="top-predictions-section" class="top-pred-section" hidden>
+          <p class="matched-label">Other Possible Conditions:</p>
+          <div id="top-predictions-list" class="top-pred-list" role="list" aria-label="Other possible conditions"></div>
+        </div>
+      </div>
+
+      <!-- AI Suggestions Card -->
+      <div class="card result-card suggestions-card">
+        <h2 class="result-section-title">🤖 AI Health Suggestions</h2>
+        <p class="suggestions-powered">Powered by LLaMA 3.3 70B via Groq</p>
+        <div id="suggestions-content" class="suggestions-content" role="region" aria-label="AI health suggestions" aria-live="polite"></div>
+      </div>
+
+      <!-- Disclaimer Card -->
+      <div class="disclaimer-card" role="complementary" aria-label="Medical disclaimer">
+        <div class="disclaimer-icon" aria-hidden="true">⚕️</div>
+        <div class="disclaimer-text">
+          <strong>Medical Disclaimer</strong>
+          <p id="disclaimer-text"></p>
+        </div>
+      </div>
+
+      <!-- New Analysis Button -->
+      <div class="new-analysis-wrapper">
+        <button id="new-analysis-btn" class="btn-secondary" aria-label="Start new symptom analysis">
+          ← New Analysis
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <p>HealthAI &copy; 2026 &mdash; For educational and informational purposes only.</p>
+    <p>Always consult a qualified healthcare professional for medical advice.</p>
+  </footer>
+
+  <script>
+    // ─── State ───────────────────────────────────────────────────────────────
+    const state = {
+      selectedSymptoms: new Set(),   // known symptoms (in dataset)
+      customSymptoms:   new Set(),   // free-typed symptoms (may be unknown)
+      allSymptoms: [],
+    };
+
+    // ─── DOM refs ────────────────────────────────────────────────────────────
+    const searchInput     = document.getElementById('symptom-search');
+    const addCustomBtn    = document.getElementById('add-custom-btn');
+    const suggestionsList = document.getElementById('suggestions-list');
+    const selectedDiv     = document.getElementById('selected-symptoms');
+    const tagsPlaceholder = document.getElementById('tags-placeholder');
+    const healthForm      = document.getElementById('health-form');
+    const analyzeBtn      = document.getElementById('analyze-btn');
+    const ageInput        = document.getElementById('age-input');
+    const genderSelect    = document.getElementById('gender-select');
+    const errorMsg        = document.getElementById('error-msg');
+    const errorText       = document.getElementById('error-text');
+    const loadingState    = document.getElementById('loading-state');
+    const resultsSection  = document.getElementById('results-section');
+
+    // ─── Fetch all symptoms on load ──────────────────────────────────────────
+    async function loadSymptoms() {
+      try {
+        const res = await fetch('/symptoms');
+        const data = await res.json();
+        state.allSymptoms = data.symptoms || [];
+      } catch (e) {
+        console.warn('Could not load symptom list:', e);
+      }
+    }
+
+    // ─── Format symptom label ─────────────────────────────────────────────────
+    function formatLabel(sym) {
+      return sym.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    // ─── Autocomplete ─────────────────────────────────────────────────────────
+    function showSuggestions(query) {
+      if (!query || query.length < 2) {
+        hideSuggestions();
+        return;
+      }
+      const q = query.toLowerCase();
+      const matches = state.allSymptoms
+        .filter(s => s.includes(q) || formatLabel(s).toLowerCase().includes(q))
+        .filter(s => !state.selectedSymptoms.has(s))
+        .slice(0, 8);
+
+      if (!matches.length) {
+        hideSuggestions();
+        return;
+      }
+
+      suggestionsList.innerHTML = '';
+      matches.forEach(sym => {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'option');
+        li.className = 'suggestion-item';
+        li.textContent = formatLabel(sym);
+        li.dataset.symptom = sym;
+        li.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          addKnownSymptom(sym);
+          searchInput.value = '';
+          hideSuggestions();
+          searchInput.focus();
+        });
+        suggestionsList.appendChild(li);
+      });
+
+      suggestionsList.hidden = false;
+      searchInput.setAttribute('aria-expanded', 'true');
+    }
+
+    function hideSuggestions() {
+      suggestionsList.hidden = true;
+      suggestionsList.innerHTML = '';
+      searchInput.setAttribute('aria-expanded', 'false');
+    }
+
+    searchInput.addEventListener('input', () => showSuggestions(searchInput.value.trim()));
+    searchInput.addEventListener('blur',  () => setTimeout(hideSuggestions, 150));
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') hideSuggestions();
+      if (e.key === 'Enter')  { e.preventDefault(); addTypedSymptom(); }
+    });
+
+    // ─── Add Symptoms ─────────────────────────────────────────────────────────
+    // Add a KNOWN symptom (from autocomplete/quick buttons)
+    function addKnownSymptom(sym) {
+      if (state.selectedSymptoms.has(sym)) return;
+      if (totalCount() >= 20) return;
+      state.selectedSymptoms.add(sym);
+      renderTags();
+    }
+
+    // Add ANY typed text — known OR custom/free-text
+    function addTypedSymptom() {
+      const raw = searchInput.value.trim();
+      if (!raw) return;
+
+      const norm = raw.toLowerCase().replace(/\s+/g, '_');
+
+      // If it's a known symptom, add as known
+      if (state.allSymptoms.includes(norm)) {
+        addKnownSymptom(norm);
+      } else {
+        // Add as custom (free-text) symptom
+        if (!state.customSymptoms.has(raw) && totalCount() < 20) {
+          state.customSymptoms.add(raw);
+          renderTags();
+        }
+      }
+      searchInput.value = '';
+      hideSuggestions();
+      searchInput.focus();
+    }
+
+    function totalCount() {
+      return state.selectedSymptoms.size + state.customSymptoms.size;
+    }
+
+    function removeSymptom(sym, isCustom) {
+      if (isCustom) state.customSymptoms.delete(sym);
+      else          state.selectedSymptoms.delete(sym);
+      renderTags();
+    }
+
+    function renderTags() {
+      selectedDiv.querySelectorAll('.tag').forEach(t => t.remove());
+
+      if (totalCount() === 0) {
+        tagsPlaceholder.hidden = false;
+      } else {
+        tagsPlaceholder.hidden = true;
+
+        // Known (green) tags
+        state.selectedSymptoms.forEach(sym => {
+          const tag = document.createElement('button');
+          tag.type = 'button';
+          tag.className = 'tag tag-known';
+          tag.setAttribute('role', 'listitem');
+          tag.setAttribute('aria-label', `Remove ${formatLabel(sym)}`);
+          tag.innerHTML = `<span>${formatLabel(sym)}</span><span class="tag-remove" aria-hidden="true">×</span>`;
+          tag.addEventListener('click', () => removeSymptom(sym, false));
+          selectedDiv.appendChild(tag);
+        });
+
+        // Custom / free-typed (orange) tags
+        state.customSymptoms.forEach(sym => {
+          const tag = document.createElement('button');
+          tag.type = 'button';
+          tag.className = 'tag tag-custom';
+          tag.setAttribute('role', 'listitem');
+          tag.setAttribute('aria-label', `Remove ${sym}`);
+          tag.innerHTML = `<span>✎ ${sym}</span><span class="tag-remove" aria-hidden="true">×</span>`;
+          tag.addEventListener('click', () => removeSymptom(sym, true));
+          selectedDiv.appendChild(tag);
+        });
+      }
+    }
+
+    // ─── Quick add buttons ────────────────────────────────────────────────────
+    document.querySelectorAll('.quick-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sym = btn.dataset.symptom;
+        addKnownSymptom(sym);
+        btn.classList.add('quick-btn-added');
+        setTimeout(() => btn.classList.remove('quick-btn-added'), 1000);
+      });
+    });
+
+    // + Add button
+    addCustomBtn.addEventListener('click', () => addTypedSymptom());
+
+    // ─── Show / hide error ────────────────────────────────────────────────────
+    function showError(msg) {
+      errorText.textContent = msg;
+      errorMsg.hidden = false;
+      errorMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function hideError() { errorMsg.hidden = true; }
+
+    // ─── Loading steps animation ──────────────────────────────────────────────
+    let stepTimer = null;
+    function startLoadingSteps() {
+      const steps = ['step-1', 'step-2', 'step-3'];
+      let i = 0;
+      steps.forEach(id => {
+        const el = document.getElementById(id);
+        el.querySelector('.step-icon').className = 'step-icon';
+      });
+      document.getElementById('step-1').querySelector('.step-icon').classList.add('step-active');
+      stepTimer = setInterval(() => {
+        i++;
+        if (i < steps.length) {
+          document.getElementById(steps[i]).querySelector('.step-icon').classList.add('step-active');
+        } else {
+          clearInterval(stepTimer);
+        }
+      }, 1500);
+    }
+    function stopLoadingSteps() { clearInterval(stepTimer); }
+
+    // ─── Confidence arc update ─────────────────────────────────────────────────
+    function setConfidenceArc(pct) {
+      const circumference = 2 * Math.PI * 34; // 213.6
+      const offset = circumference - (pct / 100) * circumference;
+      const arc = document.getElementById('conf-arc');
+      arc.style.transition = 'stroke-dashoffset 1s ease';
+      arc.style.strokeDashoffset = offset;
+    }
+
+    // ─── Render markdown-like suggestions ─────────────────────────────────────
+    function renderMarkdown(text) {
+      // Very lightweight markdown renderer
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/^## (.+)$/gm, '<h3 class="md-h3">$1</h3>')
+        .replace(/^### (.+)$/gm, '<h4 class="md-h4">$1</h4>')
+        .replace(/^---+$/gm, '<hr class="md-hr"/>')
+        .replace(/^- (.+)$/gm, '<li class="md-li">$1</li>')
+        .replace(/(<li[^>]*>.*<\/li>\n?)+/gs, match => `<ul class="md-ul">${match}</ul>`)
+        .replace(/\n\n/g, '</p><p class="md-p">')
+        .replace(/^(?!<[hul]|<p|<hr)(.+)$/gm, '<p class="md-p">$1</p>')
+        .replace(/⚠️ \*\*Medical Disclaimer\*\*: (.+)/g,
+          '<div class="inline-disclaimer">⚠️ <strong>Medical Disclaimer</strong>: $1</div>');
+    }
+
+    // ─── Form submit ──────────────────────────────────────────────────────────
+    healthForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const symptoms = [...state.selectedSymptoms, ...state.customSymptoms];
+      if (symptoms.length === 0) {
+        showError('Please add at least one symptom. Use the search or type any symptom and press Enter / click + Add.');
+        searchInput.focus();
+        return;
+      }
+
+      const age    = ageInput.value ? parseInt(ageInput.value, 10) : null;
+      const gender = genderSelect.value || null;
+
+      // Show loading
+      analyzeBtn.disabled = true;
+      analyzeBtn.querySelector('.btn-text').textContent = 'Analyzing…';
+      loadingState.hidden = false;
+      resultsSection.hidden = true;
+      startLoadingSteps();
+      loadingState.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      try {
+        const res = await fetch('/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ symptoms, age, gender }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || `Server error (${res.status})`);
+        }
+
+        stopLoadingSteps();
+        loadingState.hidden = true;
+        renderResults(data);
+        resultsSection.hidden = false;
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      } catch (err) {
+        stopLoadingSteps();
+        loadingState.hidden = true;
+        showError(err.message || 'Something went wrong. Please try again.');
+      } finally {
+        analyzeBtn.disabled = false;
+        analyzeBtn.querySelector('.btn-text').textContent = 'Analyze My Symptoms';
+      }
+    });
+
+    // ─── Render results ───────────────────────────────────────────────────────
+    function renderResults(data) {
+      // Disease name
+      document.getElementById('disease-name').textContent = data.predicted_disease;
+
+      // Confidence
+      const pct = data.confidence || 0;
+      document.getElementById('confidence-pct').textContent = `${pct.toFixed(1)}%`;
+      document.getElementById('confidence-bar').style.width = `${pct}%`;
+      document.getElementById('confidence-bar').setAttribute('aria-valuenow', pct);
+
+      // Confidence label
+      const confLabel = pct >= 80 ? 'High' : pct >= 55 ? 'Moderate' : 'Low';
+      const confEl = document.getElementById('conf-label');
+      confEl.textContent = confLabel;
+      confEl.className = `conf-label-text conf-${confLabel.toLowerCase()}`;
+
+      // Confidence arc
+      setTimeout(() => setConfidenceArc(pct), 100);
+
+      // Matched symptoms (exact)
+      const matchedSec = document.getElementById('matched-symptoms-section');
+      const matchedTags = document.getElementById('matched-tags');
+      if (data.matched_symptoms && data.matched_symptoms.length > 0) {
+        matchedTags.innerHTML = data.matched_symptoms.map(s =>
+          `<span class="matched-tag" role="listitem">✓ ${formatLabel(s)}</span>`
+        ).join('');
+        matchedSec.hidden = false;
+      } else {
+        matchedSec.hidden = true;
+      }
+
+      // Auto-mapped symptoms (fuzzy matched → used in ML)
+      const mappedSec  = document.getElementById('mapped-symptoms-section');
+      const mappedTags = document.getElementById('mapped-tags');
+      const mappeds    = data.mapped_symptoms || [];
+      if (mappeds.length > 0) {
+        mappedTags.innerHTML = mappeds.map(m =>
+          `<div class="mapped-tag-row" role="listitem">
+            <span class="tag-custom mapped-input">✎ ${m.input}</span>
+            <span class="mapped-arrow" aria-hidden="true">→</span>
+            <span class="mapped-tag">✓ ${formatLabel(m.mapped_to)}</span>
+          </div>`
+        ).join('');
+        mappedSec.hidden = false;
+      } else {
+        mappedSec.hidden = true;
+      }
+
+      // Unknown symptoms (no match — LLM context only)
+      const unknownSec  = document.getElementById('unknown-symptoms-section');
+      const unknownTags = document.getElementById('unknown-tags');
+      const unknowns    = data.unknown_symptoms || [];
+      if (unknowns.length > 0) {
+        unknownTags.innerHTML = unknowns.map(u => {
+          const label = typeof u === 'object' ? u.input : u;
+          return `<div class="unknown-tag-row" role="listitem">
+            <span class="unknown-tag">✗ ${label}</span>
+            <span class="unknown-closest">Sent to AI for context</span>
+          </div>`;
+        }).join('');
+        unknownSec.hidden = false;
+      } else {
+        unknownSec.hidden = true;
+      }
+
+      // Top predictions (skip the first one, it's already shown)
+      const topSec = document.getElementById('top-predictions-section');
+      const topList = document.getElementById('top-predictions-list');
+      const others = (data.top_predictions || []).slice(1, 4);
+      if (others.length > 0) {
+        topList.innerHTML = others.map(p =>
+          `<div class="top-pred-item" role="listitem">
+            <span class="top-pred-name">${p.disease}</span>
+            <span class="top-pred-conf">${p.confidence.toFixed(1)}%</span>
+          </div>`
+        ).join('');
+        topSec.hidden = false;
+      } else {
+        topSec.hidden = true;
+      }
+
+      // AI suggestions
+      const suggestionsContent = document.getElementById('suggestions-content');
+      suggestionsContent.innerHTML = renderMarkdown(data.suggestions || '');
+
+      // Disclaimer
+      document.getElementById('disclaimer-text').textContent = data.disclaimer || '';
+    }
+
+    // ─── New analysis button ──────────────────────────────────────────────────
+    document.getElementById('new-analysis-btn').addEventListener('click', () => {
+      resultsSection.hidden = true;
+      state.selectedSymptoms.clear();
+      state.customSymptoms.clear();
+      renderTags();
+      ageInput.value = '';
+      genderSelect.value = '';
+      healthForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      searchInput.focus();
+    });
+
+    // ─── Init ─────────────────────────────────────────────────────────────────
+    loadSymptoms();
+  </script>
+
+</body>
+</html>
